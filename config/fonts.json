@@ -1,0 +1,22 @@
+{
+    "mainTitle": {
+        "family": "times",
+        "style": "bold",
+        "size": 18
+    },
+    "mainSubTitle": {
+        "family": "times",
+        "style": "bold",
+        "size": 12
+    },
+    "normalText": {
+        "family": "times",
+        "style": "regular",
+        "size": 12
+    },
+    "sectionHeader": {
+        "family": "times",
+        "style": "bold",
+        "size": 14
+    }
+}

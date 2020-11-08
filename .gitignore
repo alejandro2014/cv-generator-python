@@ -1,0 +1,4 @@
+*.pdf
+*.odt
+._*.py
+config/cv-data.json
