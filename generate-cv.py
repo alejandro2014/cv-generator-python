@@ -1,3 +1,4 @@
+import copy
 import json
 from fpdf import FPDF
 
@@ -47,6 +48,12 @@ class PDF(FPDF):
 
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
+        self.new_line()
+
+    def generate_experiences(self, experiences):
+        self.change_font('sectionHeader')
+        self.write_string('Work experiences')
+        self.new_line()
 
     def write_paragraph(self, text, rect = { 'start_x': 10.0, 'end_x': 200.0 }):
         length = rect['end_x'] - rect['start_x']
@@ -73,14 +80,15 @@ class PDF(FPDF):
             self.text((self.w - string_width) / 2, self.current_y, string)
 
     def change_font(self, font_name):
-        self.font = self.pdf_fonts[font_name]
+        current_font = copy.copy(self.pdf_fonts[font_name])
 
-        if self.font['style'] == 'bold':
-            self.font['style'] = 'B'
+        if current_font['style'] == 'bold':
+            current_font['style'] = 'B'
         else:
-            self.font['style'] = ''
+            current_font['style'] = ''
 
-        self.set_font(self.font['family'], self.font['style'], self.font['size'])
+        self.set_font(current_font['family'], current_font['style'], current_font['size'])
+        self.font = current_font
 
     def new_line(self):
         self.current_y += (self.font['size'] + 2.0) / 2.54
@@ -92,4 +100,5 @@ pdf.add_page()
 
 pdf.generate_header(cv_data['header'])
 pdf.generate_profile(cv_data['profile'])
+pdf.generate_experiences(cv_data['experiences'])
 pdf.output('test.pdf','F')
