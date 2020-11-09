@@ -16,6 +16,8 @@ class PDF(FPDF):
     def __init__(self):
         super().__init__(unit = 'mm')
         self.pdf_fonts = load_config_file('fonts')
+        self.current_limits = { 'start_x': 10.0, 'end_x': 200.0 }
+        self.current_x = self.current_limits['start_x']
         self.current_y = 30.0
         self.font = {}
 
@@ -58,12 +60,24 @@ class PDF(FPDF):
         width = 190.0
 
         self.set_line_width(0.0)
-        #self.rect(10.0, self.current_y, 190.0, 100.0)
         self.rect(10.0, self.current_y, width * 0.3, 100.0)
-        self.rect(10.0 + width * 0.3, self.current_y, width * 0.7, 100.0)
 
-    def write_paragraph(self, text, rect = { 'start_x': 10.0, 'end_x': 200.0 }):
-        length = rect['end_x'] - rect['start_x']
+        self.current_limits = { 'start_x': 10.0, 'end_x': width * 0.3 }
+        self.current_x = self.current_limits['start_x']
+
+        experience_times = self.generate_experience_times(experiences[0]['start'], experiences[0]['end'])
+        #self.rect(10.0 + width * 0.3, self.current_y, width * 0.7, 100.0)
+
+        self.change_font('normalText')
+        self.new_line()
+
+        self.write_string(experience_times, 'C')
+
+    def generate_experience_times(self, start, end):
+        return str(start) if start == end else str(start) + " - " + str(end)
+
+    def write_paragraph(self, text):
+        length = self.current_limits['end_x'] - self.current_limits['start_x']
         space_positions = [ pos for pos, char in enumerate(text) if char == ' ' ]
         lines = []
         start_space = 0
@@ -81,10 +95,12 @@ class PDF(FPDF):
 
     def write_string(self, string, align = 'L'):
         if align == 'L':
-            self.text(10.0, self.current_y, string)
+            self.text(self.current_x, self.current_y, string)
         elif align == 'C':
             string_width = self.get_string_width(string)
-            self.text((self.w - string_width) / 2, self.current_y, string)
+            mid_x = (self.current_limits['end_x'] - self.current_limits['start_x']) + self.current_x
+            current_x = self.current_x + ((mid_x - string_width) / 2)
+            self.text(current_x, self.current_y, string)
 
     def change_font(self, font_name):
         current_font = copy.copy(self.pdf_fonts[font_name])
@@ -99,6 +115,7 @@ class PDF(FPDF):
 
     def new_line(self):
         self.current_y += (self.font['size'] + 2.0) / 2.54
+        self.current_x = self.current_limits['start_x']
 
 cv_data = load_config_file('cv-data')
 
