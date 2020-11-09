@@ -55,6 +55,13 @@ class PDF(FPDF):
         self.write_string('Work experiences')
         self.new_line()
 
+        width = 190.0
+
+        self.set_line_width(0.0)
+        #self.rect(10.0, self.current_y, 190.0, 100.0)
+        self.rect(10.0, self.current_y, width * 0.3, 100.0)
+        self.rect(10.0 + width * 0.3, self.current_y, width * 0.7, 100.0)
+
     def write_paragraph(self, text, rect = { 'start_x': 10.0, 'end_x': 200.0 }):
         length = rect['end_x'] - rect['start_x']
         space_positions = [ pos for pos, char in enumerate(text) if char == ' ' ]
