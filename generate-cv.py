@@ -37,12 +37,7 @@ class PDF(FPDF):
         self.generate_header(cv_data['header'])
         self.generate_profile(cv_data['profile'])
 
-        self.change_font('sectionHeader')
-        self.write_string_ln('Work experiences')
-        self.add_line()
-
-        for experience in cv_data['experiences']:
-            self.generate_experience(experience)
+        self.generate_experiences(cv_data['experiences'])
 
         self.position_line()
 
@@ -67,6 +62,14 @@ class PDF(FPDF):
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
 
+    def generate_experiences(self, experiences):
+        self.change_font('sectionHeader')
+        self.write_string_ln('Work experiences')
+        self.add_line()
+
+        for experience in experiences:
+            self.generate_experience(experience)
+
     def generate_experience(self, experience):
         current_y = self.current_y
 
@@ -83,13 +86,10 @@ class PDF(FPDF):
 
         if not self.is_experience_fitting(height):
             self.add_page()
-            current_y = 10.0
             self.current_y = 10.0
+            current_y = self.current_y
 
             self.set_region(region_right)
-            paragraphs = self.get_experience_paragraphs(experience)
-            lines = self.get_paragraphs_lines(paragraphs, self.current_region)
-            height = self.get_section_height(lines, self.font)
 
         self.current_region.add_height(height)
         self.draw_region(self.current_region)
