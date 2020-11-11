@@ -14,6 +14,11 @@
         "style": "regular",
         "size": 12
     },
+    "smallText": {
+        "family": "times",
+        "style": "regular",
+        "size": 10
+    },
     "sectionHeader": {
         "family": "times",
         "style": "bold",

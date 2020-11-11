@@ -1,0 +1,18 @@
+{
+    "main": {
+        "start_x": 0.0,
+        "padding": 10.0,
+        "width": 210.0,
+        "height": 297.0
+    },
+    "leftColumn": {
+        "start_x": 10.0,
+        "padding": 3.0,
+        "width": 57.0
+    },
+    "rightColumn": {
+        "start_x": 67.0,
+        "padding": 3.0,
+        "width": 133.0
+    }
+}

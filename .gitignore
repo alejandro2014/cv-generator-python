@@ -5,3 +5,4 @@
 
 config/._*.py
 config/cv-data.json
+__pycache__/
