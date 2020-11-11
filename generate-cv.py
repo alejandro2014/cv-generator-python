@@ -81,6 +81,16 @@ class PDF(FPDF):
         lines = self.get_paragraphs_lines(paragraphs, self.current_region)
         height = self.get_section_height(lines, self.font)
 
+        if not self.is_experience_fitting(height):
+            self.add_page()
+            current_y = 10.0
+            self.current_y = 10.0
+
+            self.set_region(region_right)
+            paragraphs = self.get_experience_paragraphs(experience)
+            lines = self.get_paragraphs_lines(paragraphs, self.current_region)
+            height = self.get_section_height(lines, self.font)
+
         self.current_region.add_height(height)
         self.draw_region(self.current_region)
 
@@ -97,6 +107,12 @@ class PDF(FPDF):
         self.write_string(experience_times, 'C')
 
         self.current_y += height
+
+    def is_experience_fitting(self, height):
+        limit_y = 287.0
+        candidate_end_y = self.current_y + height
+
+        return candidate_end_y <= limit_y
 
     def write_lines(self, lines):
         for line in lines:
