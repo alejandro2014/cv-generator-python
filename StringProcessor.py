@@ -1,4 +1,9 @@
+import datetime
+
 class StringProcessor:
+    def __init__(self):
+        self.repo = 'https://github.com/alejandro2014/cv-generator-python'
+
     def get_position_string(self, position):
         return "Position: " + position
 
@@ -14,5 +19,10 @@ class StringProcessor:
 
         return str(start) if start == end else str(start) + " - " + str(end)
 
-    def get_skill_line(self, skill):
-        return "* " + skill
+    def get_bullet_point_line(self, line):
+        return "* " + line
+
+    def get_company_mark(self, company):
+        now = datetime.datetime.now()
+
+        return now.strftime("%d/%m/%Y %H:%M:%S") + " - C.V. generado para " + company + " - " + self.repo

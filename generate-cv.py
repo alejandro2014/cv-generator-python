@@ -17,6 +17,7 @@ class PDF(FPDF):
         self.cursor_y = 0.0
         self.current_y = 0.0
         self.step_no = 1
+        self.company_name = '<UNKNOWN>'
 
         self.change_font('normalText')
 
@@ -28,8 +29,15 @@ class PDF(FPDF):
         self.text(190.0, self.current_y + 1, str(self.current_y))
         self.step_no += 1
 
+    def company_mark(self):
+        self.change_font('smallText')
+        company_mark = self.string_processor.get_company_mark(self.company_name)
+
+        self.text(5.0, 293.0, company_mark)
+
     def generate_cv(self, cv_data):
         self.add_page()
+        self.company_mark()
 
         region = Region("main")
         self.set_region(region)
@@ -70,19 +78,22 @@ class PDF(FPDF):
             self.generate_experience(experience)
 
     def generate_skills(self, skills):
+        self.generate_enumerated_section(skills, 'Skills')
+
+    def generate_languages(self, languages):
+        self.generate_enumerated_section(languages, 'Languages')
+
+    def generate_enumerated_section(self, lines, title):
         self.change_font('sectionHeader')
         self.add_line()
-        self.write_string_ln('Skills')
+        self.write_string_ln(title)
         self.add_line()
 
         self.change_font('normalText')
 
-        for skill in skills:
-            skill_line = self.string_processor.get_skill_line(skill)
-            self.write_string_ln(skill_line)
-
-    def generate_languages(self, languages):
-        return
+        for line in lines:
+            current_line = self.string_processor.get_bullet_point_line(line)
+            self.write_string_ln(current_line)
 
     def generate_experience(self, experience):
         current_y = self.current_y
@@ -100,6 +111,8 @@ class PDF(FPDF):
 
         if not self.is_experience_fitting(height):
             self.add_page()
+            self.company_mark()
+
             self.current_y = 10.0
             current_y = self.current_y
 
