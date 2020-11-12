@@ -13,3 +13,6 @@ class StringProcessor:
         end = experience['end']
 
         return str(start) if start == end else str(start) + " - " + str(end)
+
+    def get_skill_line(self, skill):
+        return "* " + skill

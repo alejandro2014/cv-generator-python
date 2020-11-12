@@ -36,10 +36,9 @@ class PDF(FPDF):
 
         self.generate_header(cv_data['header'])
         self.generate_profile(cv_data['profile'])
-
         self.generate_experiences(cv_data['experiences'])
-
-        self.position_line()
+        self.generate_skills(cv_data['skills'])
+        self.generate_languages(cv_data['languages'])
 
     def generate_header(self, header):
         self.change_font('mainTitle')
@@ -69,6 +68,21 @@ class PDF(FPDF):
 
         for experience in experiences:
             self.generate_experience(experience)
+
+    def generate_skills(self, skills):
+        self.change_font('sectionHeader')
+        self.add_line()
+        self.write_string_ln('Skills')
+        self.add_line()
+
+        self.change_font('normalText')
+
+        for skill in skills:
+            skill_line = self.string_processor.get_skill_line(skill)
+            self.write_string_ln(skill_line)
+
+    def generate_languages(self, languages):
+        return
 
     def generate_experience(self, experience):
         current_y = self.current_y
@@ -107,6 +121,7 @@ class PDF(FPDF):
         self.write_string(experience_times, 'C')
 
         self.current_y += height
+        self.cursor_y += height
 
     def is_experience_fitting(self, height):
         limit_y = 287.0
