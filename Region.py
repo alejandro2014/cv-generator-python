@@ -11,8 +11,6 @@ class Region:
         self.width = region_data['width']
 
         self.mid_x = self.x + self.width / 2
-        self.end_x = self.x + self.width - self.padding
-
         self.start_x_padded = self.x + self.padding
         self.width_padded = self.width - 2 * self.padding
 
@@ -22,7 +20,3 @@ class Region:
 
     def add_height(self, height):
         self.height = height
-
-        self.end_y = self.y + self.height - self.padding
-        self.mid_y = self.y + self.height / 2
-        self.height_padded = self.height - 2 * self.padding

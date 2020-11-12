@@ -137,10 +137,7 @@ class PDF(FPDF):
         self.cursor_y += height
 
     def is_experience_fitting(self, height):
-        limit_y = 287.0
-        candidate_end_y = self.current_y + height
-
-        return candidate_end_y <= limit_y
+        return (self.current_y + height) <= 287.0
 
     def write_lines(self, lines):
         for line in lines:
@@ -190,7 +187,7 @@ class PDF(FPDF):
         self.add_line()
 
     def get_section_height(self, paragraph_lines, font):
-        height = (((len(paragraph_lines) + 1) * font['size'])  / 2.54)
+        height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
 
         return height
 
@@ -231,9 +228,8 @@ class PDF(FPDF):
         self.current_y = region.start_y_padded
         self.cursor_y = self.current_y + self.font['size'] / 2.54
 
-    def draw_region(self, region, color = [0, 0, 0]):
-        self.set_draw_color(color[0], color[1], color[2])
-
+    def draw_region(self, region):
+        self.set_draw_color(0, 0, 0)
         self.rect(region.x, region.y, region.width, region.height)
 
 config_loader = ConfigLoader()
