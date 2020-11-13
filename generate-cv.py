@@ -235,6 +235,7 @@ class PDF(FPDF):
 config_loader = ConfigLoader()
 cv_data = config_loader.load_config_file('cv-data')
 
+
 pdf = PDF()
 pdf.generate_cv(cv_data)
 pdf.output('test.pdf', 'F')
