@@ -6,7 +6,7 @@ from StringProcessor import StringProcessor
 from ConfigLoader import ConfigLoader
 
 class PDFGenerator(FPDF):
-    def __init__(self):
+    def __init__(self, company_name = '<UNKNOWN>'):
         super().__init__(unit = 'mm')
 
         self.configLoader = ConfigLoader()
@@ -17,23 +17,9 @@ class PDFGenerator(FPDF):
         self.cursor_y = 0.0
         self.current_y = 0.0
         self.step_no = 1
-        self.company_name = '<UNKNOWN>'
+        self.company_name = company_name
 
         self.change_font('normalText')
-
-    def position_line(self):
-        self.line(10.0, self.current_y, 189.0, self.current_y)
-
-        self.change_font('smallText')
-        self.text(7.0, self.current_y + 1, str(self.step_no))
-        self.text(190.0, self.current_y + 1, str(self.current_y))
-        self.step_no += 1
-
-    def company_mark(self):
-        self.change_font('smallText')
-        company_mark = self.string_processor.get_company_mark(self.company_name)
-
-        self.text(5.0, 293.0, company_mark)
 
     def generate_cv(self, cv_data):
         self.add_page()
@@ -66,9 +52,11 @@ class PDFGenerator(FPDF):
     def generate_profile(self, profile):
         self.change_font('sectionHeader')
         self.write_string_ln('Profile')
+        self.add_line()
 
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
+        self.add_line()
 
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
@@ -132,6 +120,7 @@ class PDFGenerator(FPDF):
 
         experience_times = self.string_processor.get_experience_times(experience)
         self.write_string(experience_times, 'C')
+        self.image(experience['company']['logo'], self.current_region.mid_x - 41.0 / 2.54, self.current_y)
 
         self.current_y += height
         self.cursor_y += height
@@ -231,3 +220,17 @@ class PDFGenerator(FPDF):
     def draw_region(self, region):
         self.set_draw_color(0, 0, 0)
         self.rect(region.x, region.y, region.width, region.height)
+
+    def position_line(self):
+        self.line(10.0, self.current_y, 189.0, self.current_y)
+
+        self.change_font('smallText')
+        self.text(7.0, self.current_y + 1, str(self.step_no))
+        self.text(190.0, self.current_y + 1, str(self.current_y))
+        self.step_no += 1
+
+    def company_mark(self):
+        self.change_font('smallText')
+        company_mark = self.string_processor.get_company_mark(self.company_name)
+
+        self.text(5.0, 293.0, company_mark)

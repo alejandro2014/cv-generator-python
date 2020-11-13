@@ -5,10 +5,10 @@ class StringProcessor:
         self.repo = 'https://github.com/alejandro2014/cv-generator-python'
 
     def get_position_string(self, position):
-        return "Position: " + position
+        return position
 
     def get_company_string(self, company):
-        return "Company: " + company['name'] + ", " + company['location'] + " - " + company['type'] + " - " + company['web']
+        return company['name'] + ", " + company['location'] + " - " + company['type']
 
     def get_technologies_string(self, technologies):
         return "Technologies: " +  ", ".join(technologies)
@@ -25,4 +25,4 @@ class StringProcessor:
     def get_company_mark(self, company):
         now = datetime.datetime.now()
 
-        return now.strftime("%d/%m/%Y %H:%M:%S") + " - C.V. generado para " + company + " - " + self.repo
+        return now.strftime("%d/%m/%Y %H:%M:%S") + " - C.V. generated for " + company + " using " + self.repo
