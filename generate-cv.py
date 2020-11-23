@@ -21,20 +21,6 @@ class PDF(FPDF):
 
         self.change_font('normalText')
 
-    def position_line(self):
-        self.line(10.0, self.current_y, 189.0, self.current_y)
-
-        self.change_font('smallText')
-        self.text(7.0, self.current_y + 1, str(self.step_no))
-        self.text(190.0, self.current_y + 1, str(self.current_y))
-        self.step_no += 1
-
-    def company_mark(self):
-        self.change_font('smallText')
-        company_mark = self.string_processor.get_company_mark(self.company_name)
-
-        self.text(5.0, 293.0, company_mark)
-
     def generate_cv(self, cv_data):
         self.add_page()
         self.company_mark()
@@ -187,9 +173,7 @@ class PDF(FPDF):
         self.add_line()
 
     def get_section_height(self, paragraph_lines, font):
-        height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
-
-        return height
+        return (((len(paragraph_lines) + 1) * font['size']) / 2.54)
 
     def write_string_ln(self, string, align = 'L'):
         self.write_string(string, align)
@@ -231,6 +215,20 @@ class PDF(FPDF):
     def draw_region(self, region):
         self.set_draw_color(0, 0, 0)
         self.rect(region.x, region.y, region.width, region.height)
+
+    def position_line(self):
+        self.line(10.0, self.current_y, 189.0, self.current_y)
+
+        self.change_font('smallText')
+        self.text(7.0, self.current_y + 1, str(self.step_no))
+        self.text(190.0, self.current_y + 1, str(self.current_y))
+        self.step_no += 1
+
+    def company_mark(self):
+        self.change_font('smallText')
+        company_mark = self.string_processor.get_company_mark(self.company_name)
+
+        self.text(5.0, 293.0, company_mark)
 
 config_loader = ConfigLoader()
 cv_data = config_loader.load_config_file('cv-data')
