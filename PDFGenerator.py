@@ -8,6 +8,8 @@ from ConfigLoader import ConfigLoader
 class PDFGenerator(FPDF):
     def __init__(self, company_name = '<UNKNOWN>'):
         super().__init__(unit = 'mm')
+        #self.regions = [ Region.get_default_region() ]
+        self.current_region = Region("main")
 
         self.configLoader = ConfigLoader()
         self.pdf_fonts = self.configLoader.load_config_file('fonts')
@@ -21,33 +23,57 @@ class PDFGenerator(FPDF):
 
         self.change_font('normalText')
 
+    def draw_region(self):
+        region = self.current_region
+
+        start_x = region.start_x_padded()
+        end_x = region.end_x_padded()
+
+        start_y = region.start_y()
+        end_y = start_y + 30.0
+
+        start_x_padded = region.start_x_padded()
+        start_y_padded = region.start_y_padded()
+
+        self.line(start_x, start_y, start_x, end_y)
+        self.line(end_x, start_y, end_x, end_y)
+
+        #self.line(start_x, start_y, end_x, start_y)
+        #self.line(start_x_padded, start_y_padded, end_x, start_y)
+        #self.line(10.0, 0.0, 210.0, 297.0)
+
+        # X
+        #self.line(0.0, 0.0, 210.0, 297.0)
+        #self.line(0.0, 297.0, 210.0, 0.0)
+
     def generate_cv(self, cv_data):
         self.add_page()
 
-        region = Region("main")
-        self.set_region(region)
+        self.draw_region()
+        #region = Region("main")
+        #self.set_region(region)
 
-        self.generate_header(cv_data['header'])
-        self.generate_profile(cv_data['profile'])
-        self.generate_experiences(cv_data['experiences'])
-        self.generate_skills(cv_data['skills'])
-        self.generate_languages(cv_data['languages'])
+        #self.generate_header(cv_data['header'])
+        #self.generate_profile(cv_data['profile'])
+        #self.generate_experiences(cv_data['experiences'])
+        #self.generate_skills(cv_data['skills'])
+        #self.generate_languages(cv_data['languages'])
 
-        self.company_mark()
+        #self.company_mark()
 
     def generate_header(self, header):
         self.change_font('mainTitle')
         self.write_string_ln(header['name'], 'C')
 
-        self.change_font('mainSubTitle')
-        self.write_string_ln(header['position'], 'C')
-        self.add_line()
+        #self.change_font('mainSubTitle')
+        #self.write_string_ln(header['position'], 'C')
+        #self.add_line()
 
-        self.change_font('normalText')
-        self.write_string_ln('Address: ' + header['address'], 'C')
-        self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
-        self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
-        self.add_line(2)
+        #self.change_font('normalText')
+        #self.write_string_ln('Address: ' + header['address'], 'C')
+        #self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
+        #self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
+        #self.add_line(2)
 
     def generate_profile(self, profile):
         self.change_font('sectionHeader')
@@ -220,9 +246,9 @@ class PDFGenerator(FPDF):
         self.current_y = region.start_y_padded
         self.cursor_y = self.current_y + self.font['size'] / 2.54
 
-    def draw_region(self, region):
-        self.set_draw_color(0, 0, 0)
-        self.rect(region.x, region.y, region.width, region.height)
+    #def draw_region(self, region):
+    #    self.set_draw_color(0, 0, 0)
+    #    self.rect(region.x, region.y, region.width, region.height)
 
     def position_line(self):
         self.line(10.0, self.current_y, 189.0, self.current_y)
