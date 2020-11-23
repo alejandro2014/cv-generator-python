@@ -121,7 +121,7 @@ class PDFGenerator(FPDF):
         logo_path = 'config/logos/' + experience['company']['id'] + '.png'
         self.image(logo_path, self.current_region.mid_x - (42.0 - 5.0) / 2.54, self.current_y + 5.0)
 
-        self.add_line(4)
+        #self.add_line(4)
         experience_times = self.string_processor.get_experience_times(experience)
         self.write_string(experience_times, 'C')
 
