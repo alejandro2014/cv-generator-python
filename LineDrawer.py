@@ -26,6 +26,7 @@ class LineDrawer:
         pdf = self.__pdf
         r = pdf.current_region
 
+        print("sx: " + str(r.sx()) + " sy: " + str(r.sy()) + " w: " + str(r.w()) + " h: " + str(r.h()))
         pdf.rect(r.sx(), r.sy(), r.w(), r.h())
 
     def position_line(self):
@@ -34,8 +35,18 @@ class LineDrawer:
 
         pdf.line(10.0, r.cursor_y(), 189.0, r.cursor_y())
 
-        pdf.change_font('smallText')
+        #pdf.change_font('smallText')
         pdf.text(7.0, r.cursor_y() + 1, str(pdf.step_no))
         pdf.text(190.0, r.cursor_y() + 1, str(r.cursor_y()))
 
         pdf.step_no += 1
+
+    def position_arrow(self):
+        pdf = self.__pdf
+        r = pdf.current_region
+
+        pdf.set_draw_color(150, 0, 0)
+        pdf.line(3.0, r.cursor_y(), 18.0, r.cursor_y())
+        pdf.line(18.0, r.cursor_y(), 18.0 - 4.0, r.cursor_y() - 2.0)
+        pdf.line(18.0, r.cursor_y(), 18.0 - 4.0, r.cursor_y() + 2.0)
+        pdf.set_draw_color(0, 0, 0)

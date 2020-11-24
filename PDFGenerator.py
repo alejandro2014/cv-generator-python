@@ -28,6 +28,9 @@ class PDFGenerator(FPDF):
     def change_region(self, region_no):
         self.current_region = self.regions[region_no]
 
+    def adjust_regions_cursor(self):
+        if self.regions[0].cursor_y() > self.regions[1].cursor_y():
+
     def region_data(self, sx, sy, pad, w):
         return {
             "start_x": sx,
@@ -100,13 +103,13 @@ class PDFGenerator(FPDF):
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
         self.write_string_ln('Work experiences')
-        self.__line_drawer.position_line()
+        #self.__line_drawer.position_line()
 
         self.split_region('25%')
         #for experience in experiences:
         #    self.generate_experience(experience)
         self.generate_experience(experiences[0])
-        self.generate_experience(experiences[1])
+        #self.generate_experience(experiences[1])
 
     def generate_skills(self, skills):
         self.generate_enumerated_section(skills, 'Skills')
@@ -146,7 +149,11 @@ class PDFGenerator(FPDF):
 
         self.write_lines(lines)
         self.__line_drawer.draw_region_border()
-        self.current_region.inc_y_cursor(height / 2.54)
+
+        #self.current_region.inc_y_cursor(height)
+        #self.current_region.set_start_y(self.current_region.sy() + height)
+        #print(height)
+        self.__line_drawer.position_arrow()
 
         #---------------------------------------------
         #self.__line_drawer.draw_region(100.0)
@@ -162,6 +169,7 @@ class PDFGenerator(FPDF):
         experience_times = self.string_processor.get_experience_times(experience)
         self.write_string(experience_times, 'C')
         self.__line_drawer.draw_region_border()
+        self.__line_drawer.position_arrow()
 
     def is_experience_fitting(self, height):
         return (self.current_y + height) <= 287.0
@@ -262,3 +270,5 @@ class PDFGenerator(FPDF):
         company_mark = self.string_processor.get_company_mark(self.company_name)
 
         self.text(5.0, 293.0, company_mark)
+
+        #self.change_font('normalText')
