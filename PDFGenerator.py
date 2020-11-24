@@ -102,9 +102,11 @@ class PDFGenerator(FPDF):
         self.write_string_ln('Work experiences')
         self.__line_drawer.position_line()
 
+        self.split_region('25%')
         #for experience in experiences:
         #    self.generate_experience(experience)
         self.generate_experience(experiences[0])
+        self.generate_experience(experiences[1])
 
     def generate_skills(self, skills):
         self.generate_enumerated_section(skills, 'Skills')
@@ -125,8 +127,6 @@ class PDFGenerator(FPDF):
             self.write_string_ln(current_line)
 
     def generate_experience(self, experience):
-        self.split_region('25%')
-
         self.change_font('normalText')
         self.change_region(1)
 
@@ -146,6 +146,7 @@ class PDFGenerator(FPDF):
 
         self.write_lines(lines)
         self.__line_drawer.draw_region_border()
+        self.current_region.inc_y_cursor(height / 2.54)
 
         #---------------------------------------------
         #self.__line_drawer.draw_region(100.0)
@@ -161,8 +162,6 @@ class PDFGenerator(FPDF):
         experience_times = self.string_processor.get_experience_times(experience)
         self.write_string(experience_times, 'C')
         self.__line_drawer.draw_region_border()
-
-        #self.cursor_y += height
 
     def is_experience_fitting(self, height):
         return (self.current_y + height) <= 287.0
