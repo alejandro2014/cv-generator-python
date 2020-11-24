@@ -24,31 +24,24 @@ class PDFGenerator(FPDF):
         self.change_font('normalText')
 
     def draw_region(self):
-        region = self.current_region
+        r = self.current_region
 
-        start_x = region.start_x()
-        end_x = region.end_x()
-        mid_x = region.mid_x()
-        start_y = region.start_y()
-        end_y = start_y + 30.0
-
-        start_x_padded = region.start_x_padded()
-        start_y_padded = region.start_y_padded()
-        end_x_padded = region.end_x_padded()
-        end_y_padded = start_y_padded + 30.0
+        height = 30.0
+        end_y = r.sy() + height
+        end_y_pad = r.sypad() + height
 
         # Outer edges
-        self.line(start_x, start_y, end_x, start_y)
-        self.line(start_x, start_y, start_x, end_y)
-        self.line(end_x, start_y, end_x, end_y)
+        self.line(r.sx(), r.sy(), r.ex(), r.sy())
+        self.line(r.sx(), r.sy(), r.sx(), end_y)
+        self.line(r.ex(), r.sy(), r.ex(), end_y)
 
         # Inner edges
-        self.line(start_x_padded, start_y_padded, end_x_padded, start_y_padded)
-        self.line(start_x_padded, start_y_padded, start_x_padded, end_y_padded)
-        self.line(end_x_padded, start_y_padded, end_x_padded, end_y_padded)
+        self.line(r.sxpad(), r.sypad(), r.expad(), r.sypad())
+        self.line(r.sxpad(), r.sypad(), r.sxpad(), end_y_pad)
+        self.line(r.expad(), r.sypad(), r.expad(), end_y_pad)
 
         # Mid point
-        self.line(mid_x, start_y, mid_x, end_y)
+        self.line(r.mx(), r.sy(), r.mx(), end_y)
 
     def generate_cv(self, cv_data):
         self.add_page()

@@ -36,25 +36,25 @@ class Region:
         #self.cursor_x = 0
         #self.cursor_y = 0
 
-    def start_x(self):
+    def sx(self):
         return self.__start_x
 
-    def start_y(self):
+    def sy(self):
         return self.__start_y
 
-    def end_x(self):
+    def ex(self):
         return self.__end_x
 
-    def start_x_padded(self):
+    def sxpad(self):
         return self.__start_x_padded
 
-    def start_y_padded(self):
+    def sypad(self):
         return self.__start_y_padded
 
-    def end_x_padded(self):
+    def expad(self):
         return self.__end_x_padded
 
-    def mid_x(self):
+    def mx(self):
         return self.__mid_x
 
     def padding(self):
