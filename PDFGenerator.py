@@ -9,8 +9,11 @@ from LineDrawer import LineDrawer
 class PDFGenerator(FPDF):
     def __init__(self, company_name = '<UNKNOWN>'):
         super().__init__(unit = 'mm')
-        #self.regions = [ Region.get_default_region() ]
-        self.current_region = Region("main")
+        self.current_region = Region({
+            "start_x": 0.0, "start_y": 0.0,
+            "padding": 10.0, "width": 210.0
+        })
+        self.regions = [ self.current_region ]
 
         self.configLoader = ConfigLoader()
         self.pdf_fonts = self.configLoader.load_config_file('fonts')
@@ -23,14 +26,43 @@ class PDFGenerator(FPDF):
         self.company_name = company_name
         self.__line_drawer = LineDrawer(self)
 
+    def change_region(self, region_no):
+        self.current_region = self.regions[region_no]
+
+    def split_region(self, percentage_string):
+        percentage = float(percentage_string.replace('%', '')) / 100
+        parent_width = self.current_region.wpad()
+        parent_padding = self.current_region.padding()
+        start_y = self.current_region.cursor_y()
+
+        left_width = parent_width * percentage
+        right_width = parent_width * (1 - percentage)
+
+        left_data = {
+            "start_x": parent_padding + self.current_region.sx(),
+            "start_y": start_y,
+            "padding": 3.0,
+            "width": left_width
+        }
+
+        right_data = {
+            "start_x": parent_padding + self.current_region.sx() + left_width,
+            "start_y": start_y,
+            "padding": 3.0,
+            "width": right_width
+        }
+
+        self.regions = [ Region(left_data), Region(right_data) ]
+        self.current_region = self.regions[0]
+
     def generate_cv(self, cv_data):
         self.add_page()
 
-        self.__line_drawer.draw_region(100.0)
+        #self.__line_drawer.draw_region(100.0)
 
         self.generate_header(cv_data['header'])
         self.generate_profile(cv_data['profile'])
-        #self.generate_experiences(cv_data['experiences'])
+        self.generate_experiences(cv_data['experiences'])
         #self.generate_skills(cv_data['skills'])
         #self.generate_languages(cv_data['languages'])
 
@@ -55,15 +87,15 @@ class PDFGenerator(FPDF):
 
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
-        self.add_line()
 
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
         self.write_string_ln('Work experiences')
         self.add_line()
 
-        for experience in experiences:
-            self.generate_experience(experience)
+        #for experience in experiences:
+        #    self.generate_experience(experience)
+        self.generate_experience(experiences[0])
 
     def generate_skills(self, skills):
         self.generate_enumerated_section(skills, 'Skills')
@@ -84,10 +116,11 @@ class PDFGenerator(FPDF):
             self.write_string_ln(current_line)
 
     def generate_experience(self, experience):
-        current_y = self.current_y
-
-        region_right = Region("rightColumn")
-        region_left = Region("leftColumn")
+        self.split_region('50%')
+        self.__line_drawer.draw_region(100.0)
+        self.change_region(1)
+        self.__line_drawer.draw_region(100.0)
+        return
 
         self.change_font('normalText')
 
@@ -171,7 +204,7 @@ class PDFGenerator(FPDF):
         r = self.current_region
         lines = self.get_paragraph_lines(text, r)
         height = self.get_section_height(lines, self.font)
-        r.add_height(height)
+        #r.add_height(height)
 
         for line in lines:
             self.write_string_ln(line)

@@ -1,19 +1,11 @@
 from ConfigLoader import ConfigLoader
 
 class Region:
-    def __init__(self, region_name):
+    def __init__(self, region_data):
         #config_loader = ConfigLoader()
         #regions_data = config_loader.load_config_file("regions")
         #region_data = regions_data[region_name]
         #region_data = config_loader.getregions_data[region_name]
-
-        region_data = {
-            "start_x": 0.0,
-            "start_y": 0.0,
-            "padding": 10.0,
-            "width": 210.0,
-            "height": 297.0
-        }
 
         self.__width = region_data['width']
         self.__start_x = region_data['start_x']
@@ -66,6 +58,9 @@ class Region:
     def cursor_y(self):
         return self.__cursor_y
 
+    def w(self):
+        return self.__width
+
     def wpad(self):
         return self.__width_padded
     #-----------------------------------------------
@@ -74,5 +69,5 @@ class Region:
         self.y = y
         self.start_y_padded = self.y + self.padding
 
-    def add_height(self, height):
-        self.height = height
+    #def add_height(self, height):
+    #    self.height = height
