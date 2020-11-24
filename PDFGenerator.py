@@ -26,25 +26,25 @@ class PDFGenerator(FPDF):
     def draw_region(self):
         region = self.current_region
 
-        start_x = region.start_x_padded()
-        end_x = region.end_x_padded()
-
+        start_x = region.start_x()
+        end_x = region.end_x()
         start_y = region.start_y()
         end_y = start_y + 30.0
 
         start_x_padded = region.start_x_padded()
         start_y_padded = region.start_y_padded()
+        end_x_padded = region.end_x_padded()
+        end_y_padded = start_y_padded + 30.0
 
+        # Outer edges
+        self.line(start_x, start_y, end_x, start_y)
         self.line(start_x, start_y, start_x, end_y)
         self.line(end_x, start_y, end_x, end_y)
 
-        #self.line(start_x, start_y, end_x, start_y)
-        #self.line(start_x_padded, start_y_padded, end_x, start_y)
-        #self.line(10.0, 0.0, 210.0, 297.0)
-
-        # X
-        #self.line(0.0, 0.0, 210.0, 297.0)
-        #self.line(0.0, 297.0, 210.0, 0.0)
+        # Inner edges
+        self.line(start_x_padded, start_y_padded, end_x_padded, start_y_padded)
+        self.line(start_x_padded, start_y_padded, start_x_padded, end_y_padded)
+        self.line(end_x_padded, start_y_padded, end_x_padded, end_y_padded)
 
     def generate_cv(self, cv_data):
         self.add_page()
