@@ -4,6 +4,7 @@ from fpdf import FPDF
 from Region import Region
 from StringProcessor import StringProcessor
 from ConfigLoader import ConfigLoader
+from LineDrawer import LineDrawer
 
 class PDFGenerator(FPDF):
     def __init__(self, company_name = '<UNKNOWN>'):
@@ -20,33 +21,14 @@ class PDFGenerator(FPDF):
         self.current_y = 0.0
         self.step_no = 1
         self.company_name = company_name
+        self.__line_drawer = LineDrawer(self)
 
         #self.change_font('normalText')
-
-    def draw_region(self):
-        r = self.current_region
-
-        height = 30.0
-        end_y = r.sy() + height
-        end_y_pad = r.sypad() + height
-
-        # Outer edges
-        self.line(r.sx(), r.sy(), r.ex(), r.sy())
-        self.line(r.sx(), r.sy(), r.sx(), end_y)
-        self.line(r.ex(), r.sy(), r.ex(), end_y)
-
-        # Inner edges
-        self.line(r.sxpad(), r.sypad(), r.expad(), r.sypad())
-        self.line(r.sxpad(), r.sypad(), r.sxpad(), end_y_pad)
-        self.line(r.expad(), r.sypad(), r.expad(), end_y_pad)
-
-        # Mid point
-        self.line(r.mx(), r.sy(), r.mx(), end_y)
 
     def generate_cv(self, cv_data):
         self.add_page()
 
-        self.draw_region()
+        self.__line_drawer.draw_region()
         #region = Region("main")
         #self.set_region(region)
 
@@ -247,20 +229,6 @@ class PDFGenerator(FPDF):
 
         self.current_y = region.start_y_padded
         self.cursor_y = self.current_y + self.font['size'] / 2.54
-
-    #def draw_region(self, region):
-    #    self.set_draw_color(0, 0, 0)
-    #    self.rect(region.x, region.y, region.width, region.height)
-
-    def position_line(self):
-        r = self.current_region
-
-        self.line(10.0, r.cursor_y(), 189.0, r.cursor_y())
-
-        self.change_font('smallText')
-        self.text(7.0, r.cursor_y() + 1, str(self.step_no))
-        self.text(190.0, r.cursor_y() + 1, str(r.cursor_y()))
-        self.step_no += 1
 
     def company_mark(self):
         self.change_font('smallText')
