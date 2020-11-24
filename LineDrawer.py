@@ -2,11 +2,10 @@ class LineDrawer:
     def __init__(self, pdf):
         self.__pdf = pdf
 
-    def draw_region(self):
+    def draw_region(self, height = 30.0):
         pdf = self.__pdf
         r = pdf.current_region
 
-        height = 30.0
         end_y = r.sy() + height
         end_y_pad = r.sypad() + height
 
