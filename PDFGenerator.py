@@ -21,7 +21,7 @@ class PDFGenerator(FPDF):
         self.step_no = 1
         self.company_name = company_name
 
-        self.change_font('normalText')
+        #self.change_font('normalText')
 
     def draw_region(self):
         r = self.current_region
@@ -50,7 +50,7 @@ class PDFGenerator(FPDF):
         #region = Region("main")
         #self.set_region(region)
 
-        #self.generate_header(cv_data['header'])
+        self.generate_header(cv_data['header'])
         #self.generate_profile(cv_data['profile'])
         #self.generate_experiences(cv_data['experiences'])
         #self.generate_skills(cv_data['skills'])
@@ -60,7 +60,8 @@ class PDFGenerator(FPDF):
 
     def generate_header(self, header):
         self.change_font('mainTitle')
-        self.write_string_ln(header['name'], 'C')
+        self.write_string_ln(header['name'])
+        #self.write_string_ln(header['name'], 'C')
 
         #self.change_font('mainSubTitle')
         #self.write_string_ln(header['position'], 'C')
@@ -211,24 +212,28 @@ class PDFGenerator(FPDF):
         self.add_line()
 
     def write_string(self, string, align = 'L'):
+        r = self.current_region
+
         if align == 'L':
-            x = self.current_region.start_x_padded
+            x = r.sxpad()
         elif align == 'C':
             string_width = self.get_string_width(string)
-            x = self.current_region.mid_x - (string_width / 2)
+            x = r.mx() - (string_width / 2)
 
-        self.text(x, self.cursor_y, string)
+        self.text(x, r.cursor_y(), string)
 
     def change_font(self, font_name):
-        current_font = copy.copy(self.pdf_fonts[font_name])
+        font = copy.copy(self.pdf_fonts[font_name])
 
-        if current_font['style'] == 'bold':
-            current_font['style'] = 'B'
+        if font['style'] == 'bold':
+            font['style'] = 'B'
         else:
-            current_font['style'] = ''
+            font['style'] = ''
 
-        self.set_font(current_font['family'], current_font['style'], current_font['size'])
-        self.font = current_font
+        self.set_font(font['family'], font['style'], font['size'])
+
+        self.current_region.inc_y_cursor(font['size'] / 2.54)
+        self.font = font
 
     def add_line(self, lines_no = 1):
         for i in range(1, lines_no + 1):
@@ -248,11 +253,13 @@ class PDFGenerator(FPDF):
     #    self.rect(region.x, region.y, region.width, region.height)
 
     def position_line(self):
-        self.line(10.0, self.current_y, 189.0, self.current_y)
+        r = self.current_region
+
+        self.line(10.0, r.cursor_y(), 189.0, r.cursor_y())
 
         self.change_font('smallText')
-        self.text(7.0, self.current_y + 1, str(self.step_no))
-        self.text(190.0, self.current_y + 1, str(self.current_y))
+        self.text(7.0, r.cursor_y() + 1, str(self.step_no))
+        self.text(190.0, r.cursor_y() + 1, str(r.cursor_y()))
         self.step_no += 1
 
     def company_mark(self):

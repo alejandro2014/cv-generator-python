@@ -2,7 +2,7 @@ from ConfigLoader import ConfigLoader
 
 class Region:
     def __init__(self, region_name):
-        config_loader = ConfigLoader()
+        #config_loader = ConfigLoader()
         #regions_data = config_loader.load_config_file("regions")
         #region_data = regions_data[region_name]
         #region_data = config_loader.getregions_data[region_name]
@@ -33,8 +33,11 @@ class Region:
         self.__mid_x = (self.__start_x + self.__end_x) / 2
         #self.width_padded = self.width - 2 * self.padding
 
-        #self.cursor_x = 0
-        #self.cursor_y = 0
+        self.__cursor_x = self.__padding
+        self.__cursor_y = self.__padding
+
+    def inc_y_cursor(self, offset):
+        self.__cursor_y += offset
 
     def sx(self):
         return self.__start_x
@@ -60,15 +63,8 @@ class Region:
     def padding(self):
         return self.__padding
 
-    def get_default_region(self):
-        return {
-            "start_x": 0.0,
-            "padding": 10.0,
-            "width": 210.0,
-            "height": 297.0
-        }
-
-    #def process_region(self, region):
+    def cursor_y(self):
+        return self.__cursor_y
 
     def process_y(self, y):
         self.y = y
