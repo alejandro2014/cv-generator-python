@@ -22,17 +22,20 @@ class LineDrawer:
         # Mid point
         pdf.line(r.mx(), r.sy(), r.mx(), end_y)
 
-    #def draw_region(self, region):
-    #    self.set_draw_color(0, 0, 0)
-    #    self.rect(region.x, region.y, region.width, region.height)
+    def draw_region_border(self):
+        pdf = self.__pdf
+        r = pdf.current_region
+
+        pdf.rect(r.sx(), r.sy(), r.w(), r.h())
 
     def position_line(self):
         pdf = self.__pdf
-        r = self.current_region
+        r = pdf.current_region
 
         pdf.line(10.0, r.cursor_y(), 189.0, r.cursor_y())
 
         pdf.change_font('smallText')
         pdf.text(7.0, r.cursor_y() + 1, str(pdf.step_no))
         pdf.text(190.0, r.cursor_y() + 1, str(r.cursor_y()))
+
         pdf.step_no += 1

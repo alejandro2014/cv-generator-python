@@ -8,10 +8,11 @@ class Region:
         #region_data = config_loader.getregions_data[region_name]
 
         self.__width = region_data['width']
+        self.__padding = region_data['padding']
+
         self.__start_x = region_data['start_x']
         self.__start_y = region_data['start_y']
         self.__end_x = region_data['start_x'] + self.__width
-        self.__padding = region_data['padding']
 
         self.__start_x_padded = self.__start_x + self.__padding
         self.__start_y_padded = self.__start_y + self.__padding
@@ -30,6 +31,9 @@ class Region:
 
     def inc_y_cursor(self, offset):
         self.__cursor_y += offset
+
+    def h(self):
+        return self.__height
 
     def sx(self):
         return self.__start_x
@@ -64,13 +68,11 @@ class Region:
     def wpad(self):
         return self.__width_padded
 
-    def __str__(self):
-        return "Region { cursor_y: " + str(self.__cursor_y) + " }"
     #-----------------------------------------------
 
     #def process_y(self, y):
     #    self.y = y
     #    self.start_y_padded = self.y + self.padding
 
-    #def add_height(self, height):
-    #    self.height = height
+    def set_height(self, h):
+        self.__height = h

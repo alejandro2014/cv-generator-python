@@ -39,25 +39,35 @@ class PDFGenerator(FPDF):
 
     def split_region(self, percentage_string):
         percentage = float(percentage_string.replace('%', '')) / 100
+        padding = 3.0
 
         r = self.current_region
         parent_width = r.wpad()
         parent_padding = r.padding()
+
         start_y = r.cursor_y()
 
         left_width = parent_width * percentage
         right_width = parent_width * (1 - percentage)
         left_x = parent_padding + r.sx()
+        right_x = left_x + left_width
 
-        left_data = self.region_data(left_x, start_y, 3.0, left_width)
-        right_data = self.region_data(left_x + left_width, start_y, 3.0, right_width)
+        left_data = self.region_data(left_x, start_y, padding, left_width)
+        right_data = self.region_data(right_x, start_y, padding, right_width)
 
-        self.regions = [ Region(left_data), Region(right_data) ]
-        self.current_region = self.regions[0]
+        left_region = Region(left_data)
+        right_region = Region(right_data)
+
+        left_region.inc_y_cursor(self.font['size'] / 2.54)
+        right_region.inc_y_cursor(self.font['size'] / 2.54)
+
+        self.regions = [ left_region, right_region ]
+        self.change_region(0)
 
     def generate_cv(self, cv_data):
         self.add_page()
 
+        self.__line_drawer.position_line()
         #self.__line_drawer.draw_region(100.0)
 
         self.generate_header(cv_data['header'])
@@ -71,26 +81,38 @@ class PDFGenerator(FPDF):
     def generate_header(self, header):
         self.change_font('mainTitle')
         self.write_string_ln(header['name'], 'C')
+        self.__line_drawer.position_line()
 
         self.change_font('mainSubTitle')
         self.write_string_ln(header['position'], 'C')
+        self.__line_drawer.position_line()
 
         self.change_font('normalText')
         self.write_string_ln('Address: ' + header['address'], 'C')
+        self.__line_drawer.position_line()
+
         self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
+        self.__line_drawer.position_line()
+
         self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
+        self.__line_drawer.position_line()
+
         self.add_line(2)
+        self.__line_drawer.position_line()
 
     def generate_profile(self, profile):
         self.change_font('sectionHeader')
         self.write_string_ln('Profile')
+        self.__line_drawer.position_line()
 
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
+        self.__line_drawer.position_line()
 
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
         self.write_string_ln('Work experiences')
+        self.__line_drawer.position_line()
 
         #for experience in experiences:
         #    self.generate_experience(experience)
@@ -116,9 +138,7 @@ class PDFGenerator(FPDF):
 
     def generate_experience(self, experience):
         self.split_region('25%')
-        self.__line_drawer.draw_region(100.0)
-        self.change_region(1)
-#        self.__line_drawer.draw_region(100.0)
+        #self.__line_drawer.draw_region(100.0)
 
         self.change_font('normalText')
         self.change_region(1)
@@ -127,12 +147,10 @@ class PDFGenerator(FPDF):
         lines = self.get_paragraphs_lines(paragraphs)
         height = self.get_section_height(lines)
 
-        #print(">>>>>>> paragraphs")
-        #print(paragraphs)
-        #print(">>>>>>> lines")
-        #print(lines)
-        #print(">>>>>>> height")
-        #print(height)
+        self.current_region.set_height(height)
+        self.__line_drawer.draw_region_border()
+        #self.__line_drawer.position_line()
+        #self.__line_drawer.draw_region(100.0)
 
         #if not self.is_experience_fitting(height):
         #    self.add_page()
@@ -172,9 +190,6 @@ class PDFGenerator(FPDF):
         r = self.current_region
 
         for line in lines:
-            print(r)
-            print(line)
-            print('--------------')
             self.write_string(line)
             r.inc_y_cursor(self.font['size'] / 2.54)
 
@@ -261,7 +276,7 @@ class PDFGenerator(FPDF):
 
         self.set_font(font['family'], font['style'], font['size'])
 
-        self.current_region.inc_y_cursor(font['size'] / 2.54)
+        #self.current_region.inc_y_cursor(font['size'] / 2.54)
         self.font = font
 
     def set_region(self, region):
