@@ -27,11 +27,9 @@ class PDFGenerator(FPDF):
         self.add_page()
 
         self.__line_drawer.draw_region(100.0)
-        #region = Region("main")
-        #self.set_region(region)
 
         self.generate_header(cv_data['header'])
-        #self.generate_profile(cv_data['profile'])
+        self.generate_profile(cv_data['profile'])
         #self.generate_experiences(cv_data['experiences'])
         #self.generate_skills(cv_data['skills'])
         #self.generate_languages(cv_data['languages'])
@@ -54,7 +52,6 @@ class PDFGenerator(FPDF):
     def generate_profile(self, profile):
         self.change_font('sectionHeader')
         self.write_string_ln('Profile')
-        self.add_line()
 
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
@@ -147,7 +144,7 @@ class PDFGenerator(FPDF):
         return lines
 
     def get_paragraph_lines(self, text, region):
-        width = region.width_padded
+        width = region.wpad()
         space_positions = [ pos for pos, char in enumerate(text) if char == ' ' ]
         lines = []
         start_space = 0
@@ -171,9 +168,10 @@ class PDFGenerator(FPDF):
         return paragraphs
 
     def write_paragraph(self, text):
-        lines = self.get_paragraph_lines(text, self.current_region)
+        r = self.current_region
+        lines = self.get_paragraph_lines(text, r)
         height = self.get_section_height(lines, self.font)
-        self.current_region.add_height(height)
+        r.add_height(height)
 
         for line in lines:
             self.write_string_ln(line)

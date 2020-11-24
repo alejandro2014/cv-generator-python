@@ -31,7 +31,7 @@ class Region:
         #self.width = region_data['width']
 
         self.__mid_x = (self.__start_x + self.__end_x) / 2
-        #self.width_padded = self.width - 2 * self.padding
+        self.__width_padded = self.__width - 2 * self.__padding
 
         self.__cursor_x = self.__padding
         self.__cursor_y = self.__padding
@@ -65,6 +65,10 @@ class Region:
 
     def cursor_y(self):
         return self.__cursor_y
+
+    def wpad(self):
+        return self.__width_padded
+    #-----------------------------------------------
 
     def process_y(self, y):
         self.y = y
