@@ -28,6 +28,7 @@ class PDFGenerator(FPDF):
 
         start_x = region.start_x()
         end_x = region.end_x()
+        mid_x = region.mid_x()
         start_y = region.start_y()
         end_y = start_y + 30.0
 
@@ -45,6 +46,9 @@ class PDFGenerator(FPDF):
         self.line(start_x_padded, start_y_padded, end_x_padded, start_y_padded)
         self.line(start_x_padded, start_y_padded, start_x_padded, end_y_padded)
         self.line(end_x_padded, start_y_padded, end_x_padded, end_y_padded)
+
+        # Mid point
+        self.line(mid_x, start_y, mid_x, end_y)
 
     def generate_cv(self, cv_data):
         self.add_page()

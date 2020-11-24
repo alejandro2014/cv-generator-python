@@ -15,9 +15,10 @@ class Region:
             "height": 297.0
         }
 
+        self.__width = region_data['width']
         self.__start_x = region_data['start_x']
         self.__start_y = region_data['start_y']
-        self.__end_x = region_data['start_x'] + region_data['width']
+        self.__end_x = region_data['start_x'] + self.__width
         self.__padding = region_data['padding']
 
         self.__start_x_padded = self.__start_x + self.__padding
@@ -29,8 +30,7 @@ class Region:
         #self.padding = region_data['padding']
         #self.width = region_data['width']
 
-        #self.mid_x = self.x + self.width / 2
-        #self.start_x_padded = self.x + self.padding
+        self.__mid_x = (self.__start_x + self.__end_x) / 2
         #self.width_padded = self.width - 2 * self.padding
 
         #self.cursor_x = 0
@@ -42,17 +42,20 @@ class Region:
     def start_y(self):
         return self.__start_y
 
+    def end_x(self):
+        return self.__end_x
+
     def start_x_padded(self):
         return self.__start_x_padded
 
     def start_y_padded(self):
         return self.__start_y_padded
 
-    def end_x(self):
-        return self.__end_x
-
     def end_x_padded(self):
         return self.__end_x_padded
+
+    def mid_x(self):
+        return self.__mid_x
 
     def padding(self):
         return self.__padding
