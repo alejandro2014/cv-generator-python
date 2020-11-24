@@ -29,28 +29,28 @@ class PDFGenerator(FPDF):
     def change_region(self, region_no):
         self.current_region = self.regions[region_no]
 
+    def region_data(self, sx, sy, pad, w):
+        return {
+            "start_x": sx,
+            "start_y": sy,
+            "padding": pad,
+            "width": w
+        }
+
     def split_region(self, percentage_string):
         percentage = float(percentage_string.replace('%', '')) / 100
-        parent_width = self.current_region.wpad()
-        parent_padding = self.current_region.padding()
-        start_y = self.current_region.cursor_y()
+
+        r = self.current_region
+        parent_width = r.wpad()
+        parent_padding = r.padding()
+        start_y = r.cursor_y()
 
         left_width = parent_width * percentage
         right_width = parent_width * (1 - percentage)
+        left_x = parent_padding + r.sx()
 
-        left_data = {
-            "start_x": parent_padding + self.current_region.sx(),
-            "start_y": start_y,
-            "padding": 3.0,
-            "width": left_width
-        }
-
-        right_data = {
-            "start_x": parent_padding + self.current_region.sx() + left_width,
-            "start_y": start_y,
-            "padding": 3.0,
-            "width": right_width
-        }
+        left_data = self.region_data(left_x, start_y, 3.0, left_width)
+        right_data = self.region_data(left_x + left_width, start_y, 3.0, right_width)
 
         self.regions = [ Region(left_data), Region(right_data) ]
         self.current_region = self.regions[0]
@@ -91,7 +91,6 @@ class PDFGenerator(FPDF):
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
         self.write_string_ln('Work experiences')
-        self.add_line()
 
         #for experience in experiences:
         #    self.generate_experience(experience)
@@ -120,15 +119,21 @@ class PDFGenerator(FPDF):
         self.__line_drawer.draw_region(100.0)
         self.change_region(1)
         self.__line_drawer.draw_region(100.0)
-        return
 
         self.change_font('normalText')
-
-        self.set_region(region_right)
+        self.change_region(1)
 
         paragraphs = self.get_experience_paragraphs(experience)
         lines = self.get_paragraphs_lines(paragraphs, self.current_region)
         height = self.get_section_height(lines, self.font)
+
+        #print(">>>>>>> paragraphs")
+        #print(paragraphs)
+        #print(">>>>>>> lines")
+        #print(lines)
+        #print(">>>>>>> height")
+        #print(height)
+        return
 
         if not self.is_experience_fitting(height):
             self.add_page()
