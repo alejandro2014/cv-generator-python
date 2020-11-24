@@ -26,7 +26,7 @@ class Region:
         self.__width_padded = self.__width - 2 * self.__padding
 
         self.__cursor_x = self.__padding
-        self.__cursor_y = self.__padding
+        self.__cursor_y = self.__start_y + self.__padding
 
     def inc_y_cursor(self, offset):
         self.__cursor_y += offset
@@ -63,11 +63,14 @@ class Region:
 
     def wpad(self):
         return self.__width_padded
+
+    def __str__(self):
+        return "Region { cursor_y: " + str(self.__cursor_y) + " }"
     #-----------------------------------------------
 
-    def process_y(self, y):
-        self.y = y
-        self.start_y_padded = self.y + self.padding
+    #def process_y(self, y):
+    #    self.y = y
+    #    self.start_y_padded = self.y + self.padding
 
     #def add_height(self, height):
     #    self.height = height

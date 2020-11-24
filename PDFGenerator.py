@@ -21,7 +21,7 @@ class PDFGenerator(FPDF):
         self.string_processor = StringProcessor()
 
         self.cursor_y = 0.0
-        self.current_y = 0.0
+        #self.current_y = 0.0
         self.step_no = 1
         self.company_name = company_name
         self.__line_drawer = LineDrawer(self)
@@ -115,17 +115,17 @@ class PDFGenerator(FPDF):
             self.write_string_ln(current_line)
 
     def generate_experience(self, experience):
-        self.split_region('50%')
+        self.split_region('25%')
         self.__line_drawer.draw_region(100.0)
         self.change_region(1)
-        self.__line_drawer.draw_region(100.0)
+#        self.__line_drawer.draw_region(100.0)
 
         self.change_font('normalText')
         self.change_region(1)
 
         paragraphs = self.get_experience_paragraphs(experience)
-        lines = self.get_paragraphs_lines(paragraphs, self.current_region)
-        height = self.get_section_height(lines, self.font)
+        lines = self.get_paragraphs_lines(paragraphs)
+        height = self.get_section_height(lines)
 
         #print(">>>>>>> paragraphs")
         #print(paragraphs)
@@ -133,47 +133,53 @@ class PDFGenerator(FPDF):
         #print(lines)
         #print(">>>>>>> height")
         #print(height)
-        return
 
-        if not self.is_experience_fitting(height):
-            self.add_page()
+        #if not self.is_experience_fitting(height):
+        #    self.add_page()
 
-            self.current_y = 10.0
-            current_y = self.current_y
+        #    self.current_y = 10.0
+        #    current_y = self.current_y
 
-            self.set_region(region_right)
+        #    self.set_region(region_right)
 
-        self.current_region.add_height(height)
-        self.draw_region(self.current_region)
+        #self.current_region.add_height(height)
+        #self.draw_region(self.current_region)
 
         self.write_lines(lines)
 
-        self.current_y = current_y
+        #self.current_y = current_y
+        return
 
-        self.set_region(region_left)
+        #self.set_region(region_left)
 
-        self.current_region.add_height(height)
-        self.draw_region(self.current_region)
+        #self.current_region.add_height(height)
+        #self.draw_region(self.current_region)
 
-        logo_path = 'config/logos/' + experience['company']['id'] + '.png'
-        self.image(logo_path, self.current_region.mid_x - (42.0 - 5.0) / 2.54, self.current_y + 5.0)
+        #logo_path = 'config/logos/' + experience['company']['id'] + '.png'
+        #self.image(logo_path, self.current_region.mid_x - (42.0 - 5.0) / 2.54, self.current_y + 5.0)
 
-        #self.add_line(4)
-        experience_times = self.string_processor.get_experience_times(experience)
-        self.write_string(experience_times, 'C')
+        ##self.add_line(4)
+        #experience_times = self.string_processor.get_experience_times(experience)
+        #self.write_string(experience_times, 'C')
 
-        self.current_y += height
-        self.cursor_y += height
+        #self.current_y += height
+        #self.cursor_y += height
 
     def is_experience_fitting(self, height):
         return (self.current_y + height) <= 287.0
 
     def write_lines(self, lines):
-        for line in lines:
-            self.write_string(line)
-            self.cursor_y += (self.font['size'] / 2.54)
+        r = self.current_region
 
-    def get_paragraphs_lines(self, paragraphs, region):
+        for line in lines:
+            print(r)
+            print(line)
+            print('--------------')
+            self.write_string(line)
+            r.inc_y_cursor(self.font['size'] / 2.54)
+
+    def get_paragraphs_lines(self, paragraphs):
+        region = self.current_region
         lines = []
 
         for paragraph in paragraphs:
@@ -208,7 +214,7 @@ class PDFGenerator(FPDF):
     def write_paragraph(self, text):
         r = self.current_region
         lines = self.get_paragraph_lines(text, r)
-        height = self.get_section_height(lines, self.font)
+        height = self.get_section_height(lines)
         #r.add_height(height)
 
         for line in lines:
@@ -216,7 +222,8 @@ class PDFGenerator(FPDF):
 
         self.add_line()
 
-    def get_section_height(self, paragraph_lines, font):
+    def get_section_height(self, paragraph_lines):
+        font = self.font
         height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
 
         return height
