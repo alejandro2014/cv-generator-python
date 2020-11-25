@@ -29,7 +29,10 @@ class PDFGenerator(FPDF):
         self.current_region = self.regions[region_no]
 
     def adjust_regions_cursor(self):
-        if self.regions[0].cursor_y() > self.regions[1].cursor_y():
+        cy_left = self.regions[0].cursor_y()
+        cy_right = self.regions[1].cursor_y()
+
+        return cy_left if cy_left > cy_right else cy_right
 
     def region_data(self, sx, sy, pad, w):
         return {
