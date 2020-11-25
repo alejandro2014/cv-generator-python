@@ -11,8 +11,9 @@ from LineDrawer import LineDrawer
 class PDFGenerator(FPDF):
     def __init__(self, company_name = '<UNKNOWN>'):
         super().__init__(unit = 'mm')
-        self.configLoader = ConfigLoader()
-        self.pdf_fonts = self.configLoader.load_config_file('fonts')
+        self.__config_loader = ConfigLoader()
+        self.pdf_fonts = self.__config_loader.fonts()
+        self.font = None
 
         self.__region_manager = RegionManager()
         self.string_processor = StringProcessor()
@@ -24,10 +25,9 @@ class PDFGenerator(FPDF):
     def generate_cv(self, cv_data):
         self.add_page()
 
-        region = self.__region_manager.region()
-        self.__line_drawer.draw_region(region)
+        self.draw_current_region()
 
-        #self.generate_header(cv_data['header'])
+        self.generate_header(cv_data['header'])
         #self.generate_profile(cv_data['profile'])
         #self.generate_experiences(cv_data['experiences'])
         #self.generate_skills(cv_data['skills'])
@@ -54,7 +54,7 @@ class PDFGenerator(FPDF):
         self.add_line()
 
     def write_string(self, string, align = 'L'):
-        r = self.current_region
+        r = self.__region_manager.region()
 
         if align == 'L':
             x = r.sxpad()
@@ -65,11 +65,34 @@ class PDFGenerator(FPDF):
         self.text(x, r.cursor_y(), string)
 
     def add_line(self, lines_no = 1):
-        r = self.current_region
+        r = self.__region_manager.region()
 
         for i in range(1, lines_no + 1):
             offset_y = self.font['size'] / 2.54
-            r.inc_y_cursor(offset_y)
+            r.inc_cursor_y(offset_y)
+
+    def change_font(self, font_name):
+        font = self.__config_loader.font(font_name)
+
+        if font['style'] == 'bold':
+            style = 'B'
+        else:
+            style = ''
+
+        self.set_font(font['family'], style, font['size'])
+
+        if self.font == None:
+            r = self.get_current_region()
+            r.inc_cursor_y(font['size'] / 2.54)
+
+        self.font = font
+
+    def draw_current_region(self):
+        region = self.get_current_region()
+        self.__line_drawer.draw_region(region)
+
+    def get_current_region(self):
+        return self.__region_manager.region()
 
     #---------------------------------------------------------------------
 
@@ -103,8 +126,8 @@ class PDFGenerator(FPDF):
         left_region = Region(left_data)
         right_region = Region(right_data)
 
-        left_region.inc_y_cursor(self.font['size'] / 2.54)
-        right_region.inc_y_cursor(self.font['size'] / 2.54)
+        left_region.inc_cursor_y(self.font['size'] / 2.54)
+        right_region.inc_cursor_y(self.font['size'] / 2.54)
 
         self.regions = [ left_region, right_region ]
         self.change_region(0)
@@ -171,7 +194,7 @@ class PDFGenerator(FPDF):
         self.write_lines(lines)
         self.__line_drawer.draw_region_border()
 
-        #self.current_region.inc_y_cursor(height)
+        #self.current_region.inc_cursor_y(height)
         #self.current_region.set_start_y(self.current_region.sy() + height)
         #print(height)
         self.__line_drawer.position_arrow()
@@ -200,7 +223,7 @@ class PDFGenerator(FPDF):
 
         for line in lines:
             self.write_string(line)
-            r.inc_y_cursor(self.font['size'] / 2.54)
+            r.inc_cursor_y(self.font['size'] / 2.54)
 
     def get_paragraphs_lines(self, paragraphs):
         region = self.current_region
@@ -251,18 +274,6 @@ class PDFGenerator(FPDF):
         height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
 
         return height
-
-    def change_font(self, font_name):
-        font = copy.copy(self.pdf_fonts[font_name])
-
-        if font['style'] == 'bold':
-            font['style'] = 'B'
-        else:
-            font['style'] = ''
-
-        self.set_font(font['family'], font['style'], font['size'])
-
-        self.font = font
 
     def company_mark(self):
         self.change_font('smallText')

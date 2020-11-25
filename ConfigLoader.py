@@ -8,6 +8,9 @@ class ConfigLoader:
     def cvdata(self):
         return self.__cvdata
 
+    def fonts(self):
+        return self.__fonts
+        
     def font(self, name):
         return self.__fonts[name]
 

@@ -17,7 +17,7 @@ class Region:
 
         self.__cursor_y = self.__start_y + self.__padding
 
-    def inc_y_cursor(self, offset):
+    def inc_cursor_y(self, offset):
         self.__cursor_y += offset
 
     def h(self):
