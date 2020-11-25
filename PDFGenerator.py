@@ -25,11 +25,9 @@ class PDFGenerator(FPDF):
     def generate_cv(self, cv_data):
         self.add_page()
 
-        self.draw_current_region()
-
         self.generate_header(cv_data['header'])
         self.generate_profile(cv_data['profile'])
-        #self.generate_experiences(cv_data['experiences'])
+        self.generate_experiences(cv_data['experiences'])
         #self.generate_skills(cv_data['skills'])
         #self.generate_languages(cv_data['languages'])
 
@@ -57,6 +55,74 @@ class PDFGenerator(FPDF):
         self.change_font('normalText')
         self.write_paragraph(profile['introduction'])
         self.add_line()
+
+    def generate_experiences(self, experiences):
+        self.change_font('sectionHeader')
+        self.write_string_ln('Work experiences')
+        #self.__line_drawer.position_line()
+
+        self.__region_manager.split_region('25%')
+
+        left_region = self.__region_manager.regions()[0]
+        right_region = self.__region_manager.regions()[1]
+
+        left_region.inc_cursor_y(self.font['size'] / 2.54)
+        right_region.inc_cursor_y(self.font['size'] / 2.54)
+        #for experience in experiences:
+        #    self.generate_experience(experience)
+        self.generate_experience(experiences[0])
+        #self.generate_experience(experiences[1])
+
+    def generate_experience(self, experience):
+        self.__region_manager.change_region(1)
+        height = self.draw_right_cell(experience)
+
+        self.__region_manager.change_region(0)
+        region = self.get_current_region()
+        region.set_height(height)
+
+        self.draw_left_cell(experience)
+
+    def draw_right_cell(self, experience):
+        self.change_font('normalText')
+        paragraphs = self.get_experience_paragraphs(experience)
+        lines = self.get_paragraphs_lines(paragraphs)
+        height = self.get_section_height(lines)
+
+        region = self.get_current_region()
+        region.set_height(height)
+        #self.__line_drawer.position_line()
+        #self.__line_drawer.draw_region(100.0)
+
+        #if not self.is_experience_fitting(height):
+        #    self.add_page()
+
+        #self.current_region.add_height(height)
+        #self.draw_region(self.current_region)
+
+        self.write_lines(lines)
+        self.__line_drawer.draw_region_border()
+
+        #self.current_region.inc_cursor_y(height)
+        #self.current_region.set_start_y(self.current_region.sy() + height)
+        #print(height)
+        self.__line_drawer.position_arrow()
+
+        return height
+
+    def draw_left_cell(self, experience):
+        r = self.get_current_region()
+        #self.__line_drawer.draw_region(100.0)
+        #self.__line_drawer.draw_region(100.0)
+
+        logo_path = 'config/logos/' + experience['company']['id'] + '.png'
+        self.image(logo_path, r.mx() - (42.0 - 5.0) / 2.54, r.cursor_y())
+
+        self.add_line(3)
+        experience_times = self.string_processor.get_experience_times(experience)
+        self.write_string(experience_times, 'C')
+        self.__line_drawer.draw_region_border()
+        self.__line_drawer.position_arrow()
 
     def write_paragraph(self, text):
         r = self.get_current_region()
@@ -112,52 +178,11 @@ class PDFGenerator(FPDF):
 
     #---------------------------------------------------------------------
 
-    def change_region(self, region_no):
-        self.current_region = self.regions[region_no]
-
     def get_lowest_cursor(self):
         cy_left = self.regions[0].cursor_y()
         cy_right = self.regions[1].cursor_y()
 
         return cy_left if cy_left > cy_right else cy_right
-
-    def split_region(self, percentage_string):
-        percentage = float(percentage_string.replace('%', '')) / 100
-        padding = 3.0
-
-        r = self.current_region
-        parent_width = r.wpad()
-        parent_padding = r.padding()
-
-        start_y = r.cursor_y()
-
-        left_width = parent_width * percentage
-        right_width = parent_width * (1 - percentage)
-        left_x = parent_padding + r.sx()
-        right_x = left_x + left_width
-
-        left_data = self.region_data(left_x, start_y, padding, left_width)
-        right_data = self.region_data(right_x, start_y, padding, right_width)
-
-        left_region = Region(left_data)
-        right_region = Region(right_data)
-
-        left_region.inc_cursor_y(self.font['size'] / 2.54)
-        right_region.inc_cursor_y(self.font['size'] / 2.54)
-
-        self.regions = [ left_region, right_region ]
-        self.change_region(0)
-
-    def generate_experiences(self, experiences):
-        self.change_font('sectionHeader')
-        self.write_string_ln('Work experiences')
-        #self.__line_drawer.position_line()
-
-        self.split_region('25%')
-        #for experience in experiences:
-        #    self.generate_experience(experience)
-        self.generate_experience(experiences[0])
-        #self.generate_experience(experiences[1])
 
     def generate_skills(self, skills):
         self.generate_enumerated_section(skills, 'Skills')
@@ -177,65 +202,18 @@ class PDFGenerator(FPDF):
             current_line = self.string_processor.get_bullet_point_line(line)
             self.write_string_ln(current_line)
 
-    def generate_experience(self, experience):
-        self.change_region(1)
-        self.draw_right_cell(experience)
-
-        self.change_region(0)
-        self.draw_left_cell(experience)
-
-    def draw_right_cell(self, experience):
-        self.change_font('normalText')
-        paragraphs = self.get_experience_paragraphs(experience)
-        lines = self.get_paragraphs_lines(paragraphs)
-        height = self.get_section_height(lines)
-
-        self.current_region.set_height(height)
-        #self.__line_drawer.position_line()
-        #self.__line_drawer.draw_region(100.0)
-
-        #if not self.is_experience_fitting(height):
-        #    self.add_page()
-
-        #self.current_region.add_height(height)
-        #self.draw_region(self.current_region)
-
-        self.write_lines(lines)
-        self.__line_drawer.draw_region_border()
-
-        #self.current_region.inc_cursor_y(height)
-        #self.current_region.set_start_y(self.current_region.sy() + height)
-        #print(height)
-        self.__line_drawer.position_arrow()
-
-    def draw_left_cell(self, experience):
-        r = self.current_region
-        #self.__line_drawer.draw_region(100.0)
-
-        r.set_height(height)
-        #self.__line_drawer.draw_region(100.0)
-
-        logo_path = 'config/logos/' + experience['company']['id'] + '.png'
-        self.image(logo_path, r.mx() - (42.0 - 5.0) / 2.54, r.cursor_y())
-
-        self.add_line(3)
-        experience_times = self.string_processor.get_experience_times(experience)
-        self.write_string(experience_times, 'C')
-        self.__line_drawer.draw_region_border()
-        self.__line_drawer.position_arrow()
-
     def is_experience_fitting(self, height):
         return (self.current_y + height) <= 287.0
 
     def write_lines(self, lines):
-        r = self.current_region
+        r = self.get_current_region()
 
         for line in lines:
             self.write_string(line)
             r.inc_cursor_y(self.font['size'] / 2.54)
 
     def get_paragraphs_lines(self, paragraphs):
-        region = self.current_region
+        region = self.get_current_region()
         lines = []
 
         for paragraph in paragraphs:

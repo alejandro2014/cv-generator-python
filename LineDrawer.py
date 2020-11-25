@@ -24,14 +24,14 @@ class LineDrawer:
 
     def draw_region_border(self):
         pdf = self.__pdf
-        r = pdf.current_region
+        r = pdf.get_current_region()
 
         print("sx: " + str(r.sx()) + " sy: " + str(r.sy()) + " w: " + str(r.w()) + " h: " + str(r.h()))
         pdf.rect(r.sx(), r.sy(), r.w(), r.h())
 
     def position_line(self):
         pdf = self.__pdf
-        r = pdf.current_region
+        r = pdf.get_current_region()
 
         pdf.line(10.0, r.cursor_y(), 189.0, r.cursor_y())
 
@@ -43,7 +43,7 @@ class LineDrawer:
 
     def position_arrow(self):
         pdf = self.__pdf
-        r = pdf.current_region
+        r = pdf.get_current_region()
 
         pdf.set_draw_color(150, 0, 0)
         pdf.line(3.0, r.cursor_y(), 18.0, r.cursor_y())
