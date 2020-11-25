@@ -1,6 +1,8 @@
 import copy
 import json
+
 from fpdf import FPDF
+from RegionManager import RegionManager
 from Region import Region
 from StringProcessor import StringProcessor
 from ConfigLoader import ConfigLoader
@@ -9,38 +11,76 @@ from LineDrawer import LineDrawer
 class PDFGenerator(FPDF):
     def __init__(self, company_name = '<UNKNOWN>'):
         super().__init__(unit = 'mm')
-        self.current_region = Region({
-            "start_x": 0.0, "start_y": 0.0,
-            "padding": 10.0, "width": 210.0
-        })
-        self.regions = [ self.current_region ]
-
         self.configLoader = ConfigLoader()
         self.pdf_fonts = self.configLoader.load_config_file('fonts')
 
+        self.__region_manager = RegionManager()
         self.string_processor = StringProcessor()
+        self.__line_drawer = LineDrawer(self)
 
-        self.cursor_y = 0.0
         self.step_no = 1
         self.company_name = company_name
-        self.__line_drawer = LineDrawer(self)
+
+    def generate_cv(self, cv_data):
+        self.add_page()
+
+        region = self.__region_manager.region()
+        self.__line_drawer.draw_region(region)
+
+        #self.generate_header(cv_data['header'])
+        #self.generate_profile(cv_data['profile'])
+        #self.generate_experiences(cv_data['experiences'])
+        #self.generate_skills(cv_data['skills'])
+        #self.generate_languages(cv_data['languages'])
+
+        #self.company_mark()
+
+    def generate_header(self, header):
+        self.change_font('mainTitle')
+        self.write_string_ln(header['name'], 'C')
+
+        #self.change_font('mainSubTitle')
+        #self.write_string_ln(header['position'], 'C')
+
+        #self.change_font('normalText')
+        #self.write_string_ln('Address: ' + header['address'], 'C')
+        #self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
+        #self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
+
+        #self.add_line(2)
+
+    def write_string_ln(self, string, align = 'L'):
+        self.write_string(string, align)
+        self.add_line()
+
+    def write_string(self, string, align = 'L'):
+        r = self.current_region
+
+        if align == 'L':
+            x = r.sxpad()
+        elif align == 'C':
+            string_width = self.get_string_width(string)
+            x = r.mx() - (string_width / 2)
+
+        self.text(x, r.cursor_y(), string)
+
+    def add_line(self, lines_no = 1):
+        r = self.current_region
+
+        for i in range(1, lines_no + 1):
+            offset_y = self.font['size'] / 2.54
+            r.inc_y_cursor(offset_y)
+
+    #---------------------------------------------------------------------
 
     def change_region(self, region_no):
         self.current_region = self.regions[region_no]
 
-    def adjust_regions_cursor(self):
+    def get_lowest_cursor(self):
         cy_left = self.regions[0].cursor_y()
         cy_right = self.regions[1].cursor_y()
 
         return cy_left if cy_left > cy_right else cy_right
-
-    def region_data(self, sx, sy, pad, w):
-        return {
-            "start_x": sx,
-            "start_y": sy,
-            "padding": pad,
-            "width": w
-        }
 
     def split_region(self, percentage_string):
         percentage = float(percentage_string.replace('%', '')) / 100
@@ -68,33 +108,6 @@ class PDFGenerator(FPDF):
 
         self.regions = [ left_region, right_region ]
         self.change_region(0)
-
-    def generate_cv(self, cv_data):
-        self.add_page()
-
-        #self.__line_drawer.draw_region(100.0)
-
-        self.generate_header(cv_data['header'])
-        self.generate_profile(cv_data['profile'])
-        self.generate_experiences(cv_data['experiences'])
-        #self.generate_skills(cv_data['skills'])
-        #self.generate_languages(cv_data['languages'])
-
-        #self.company_mark()
-
-    def generate_header(self, header):
-        self.change_font('mainTitle')
-        self.write_string_ln(header['name'], 'C')
-
-        self.change_font('mainSubTitle')
-        self.write_string_ln(header['position'], 'C')
-
-        self.change_font('normalText')
-        self.write_string_ln('Address: ' + header['address'], 'C')
-        self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
-        self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
-
-        self.add_line(2)
 
     def generate_profile(self, profile):
         self.change_font('sectionHeader')
@@ -133,9 +146,14 @@ class PDFGenerator(FPDF):
             self.write_string_ln(current_line)
 
     def generate_experience(self, experience):
-        self.change_font('normalText')
         self.change_region(1)
+        self.draw_right_cell(experience)
 
+        self.change_region(0)
+        self.draw_left_cell(experience)
+
+    def draw_right_cell(self, experience):
+        self.change_font('normalText')
         paragraphs = self.get_experience_paragraphs(experience)
         lines = self.get_paragraphs_lines(paragraphs)
         height = self.get_section_height(lines)
@@ -158,15 +176,15 @@ class PDFGenerator(FPDF):
         #print(height)
         self.__line_drawer.position_arrow()
 
-        #---------------------------------------------
+    def draw_left_cell(self, experience):
+        r = self.current_region
         #self.__line_drawer.draw_region(100.0)
-        self.change_region(0)
 
-        self.current_region.set_height(height)
+        r.set_height(height)
         #self.__line_drawer.draw_region(100.0)
 
         logo_path = 'config/logos/' + experience['company']['id'] + '.png'
-        self.image(logo_path, self.current_region.mx() - (42.0 - 5.0) / 2.54, self.current_region.cursor_y())
+        self.image(logo_path, r.mx() - (42.0 - 5.0) / 2.54, r.cursor_y())
 
         self.add_line(3)
         experience_times = self.string_processor.get_experience_times(experience)
@@ -233,28 +251,6 @@ class PDFGenerator(FPDF):
         height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
 
         return height
-
-    def write_string_ln(self, string, align = 'L'):
-        self.write_string(string, align)
-        self.add_line()
-
-    def write_string(self, string, align = 'L'):
-        r = self.current_region
-
-        if align == 'L':
-            x = r.sxpad()
-        elif align == 'C':
-            string_width = self.get_string_width(string)
-            x = r.mx() - (string_width / 2)
-
-        self.text(x, r.cursor_y(), string)
-
-    def add_line(self, lines_no = 1):
-        r = self.current_region
-
-        for i in range(1, lines_no + 1):
-            offset_y = self.font['size'] / 2.54
-            r.inc_y_cursor(offset_y)
 
     def change_font(self, font_name):
         font = copy.copy(self.pdf_fonts[font_name])
