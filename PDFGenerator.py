@@ -131,6 +131,12 @@ class PDFGenerator(FPDF):
         for line in lines:
             self.write_string_ln(line)
 
+    def write_lines(self, lines):
+        r = self.get_current_region()
+
+        for line in lines:
+            self.write_string_ln(line)
+
     def write_string_ln(self, string, align = 'L'):
         self.write_string(string, align)
         self.add_line()
@@ -148,9 +154,10 @@ class PDFGenerator(FPDF):
 
     def add_line(self, lines_no = 1):
         r = self.__region_manager.region()
+        line_spacing = 1.5
 
         for i in range(1, lines_no + 1):
-            offset_y = self.font['size'] / 2.54
+            offset_y = (self.font['size'] + line_spacing) / 2.54
             r.inc_cursor_y(offset_y)
 
     def change_font(self, font_name):
@@ -204,13 +211,6 @@ class PDFGenerator(FPDF):
 
     def is_experience_fitting(self, height):
         return (self.current_y + height) <= 287.0
-
-    def write_lines(self, lines):
-        r = self.get_current_region()
-
-        for line in lines:
-            self.write_string(line)
-            r.inc_cursor_y(self.font['size'] / 2.54)
 
     def get_paragraphs_lines(self, paragraphs):
         region = self.get_current_region()
