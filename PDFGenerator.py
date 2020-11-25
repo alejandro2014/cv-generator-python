@@ -28,7 +28,7 @@ class PDFGenerator(FPDF):
         self.draw_current_region()
 
         self.generate_header(cv_data['header'])
-        #self.generate_profile(cv_data['profile'])
+        self.generate_profile(cv_data['profile'])
         #self.generate_experiences(cv_data['experiences'])
         #self.generate_skills(cv_data['skills'])
         #self.generate_languages(cv_data['languages'])
@@ -39,15 +39,31 @@ class PDFGenerator(FPDF):
         self.change_font('mainTitle')
         self.write_string_ln(header['name'], 'C')
 
-        #self.change_font('mainSubTitle')
-        #self.write_string_ln(header['position'], 'C')
+        self.change_font('mainSubTitle')
+        self.write_string_ln(header['position'], 'C')
+        self.add_line()
 
-        #self.change_font('normalText')
-        #self.write_string_ln('Address: ' + header['address'], 'C')
-        #self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
-        #self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
+        self.change_font('normalText')
+        self.write_string_ln('Address: ' + header['address'], 'C')
+        self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
+        self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
 
-        #self.add_line(2)
+        self.add_line(2)
+
+    def generate_profile(self, profile):
+        self.change_font('sectionHeader')
+        self.write_string_ln('Profile')
+
+        self.change_font('normalText')
+        self.write_paragraph(profile['introduction'])
+        self.add_line()
+
+    def write_paragraph(self, text):
+        r = self.get_current_region()
+        lines = self.get_paragraph_lines(text, r)
+
+        for line in lines:
+            self.write_string_ln(line)
 
     def write_string_ln(self, string, align = 'L'):
         self.write_string(string, align)
@@ -131,13 +147,6 @@ class PDFGenerator(FPDF):
 
         self.regions = [ left_region, right_region ]
         self.change_region(0)
-
-    def generate_profile(self, profile):
-        self.change_font('sectionHeader')
-        self.write_string_ln('Profile')
-
-        self.change_font('normalText')
-        self.write_paragraph(profile['introduction'])
 
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
@@ -257,17 +266,6 @@ class PDFGenerator(FPDF):
         paragraphs.append(self.string_processor.get_technologies_string(experience['technologies']))
 
         return paragraphs
-
-    def write_paragraph(self, text):
-        r = self.current_region
-        lines = self.get_paragraph_lines(text, r)
-        height = self.get_section_height(lines)
-        #r.add_height(height)
-
-        for line in lines:
-            self.write_string_ln(line)
-
-        self.add_line()
 
     def get_section_height(self, paragraph_lines):
         font = self.font
