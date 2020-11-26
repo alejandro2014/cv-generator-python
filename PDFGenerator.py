@@ -53,7 +53,10 @@ class PDFGenerator(FPDF):
         self.write_string_ln('Profile')
 
         self.change_font('normalText')
-        self.write_paragraph(profile['introduction'])
+
+        r = self.get_current_region()
+        lines = self.get_paragraph_lines(profile['introduction'], r)
+        self.write_paragraph(lines)
         self.add_line()
 
     def generate_experiences(self, experiences):
@@ -100,7 +103,7 @@ class PDFGenerator(FPDF):
         #self.current_region.add_height(height)
         #self.draw_region(self.current_region)
 
-        self.write_lines(lines)
+        self.write_paragraph(lines)
         self.__line_drawer.draw_region_border()
 
         #self.current_region.inc_cursor_y(height)
@@ -124,14 +127,7 @@ class PDFGenerator(FPDF):
         self.__line_drawer.draw_region_border()
         self.__line_drawer.position_arrow()
 
-    def write_paragraph(self, text):
-        r = self.get_current_region()
-        lines = self.get_paragraph_lines(text, r)
-
-        for line in lines:
-            self.write_string_ln(line)
-
-    def write_lines(self, lines):
+    def write_paragraph(self, lines):
         r = self.get_current_region()
 
         for line in lines:
