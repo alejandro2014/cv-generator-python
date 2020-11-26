@@ -1,19 +1,19 @@
-import copy
 import json
 
 from fpdf import FPDF
+from PIL import Image
+
+from ConfigLoader import ConfigLoader
+from LineDrawer import LineDrawer
 from RegionManager import RegionManager
 from Region import Region
 from StringProcessor import StringProcessor
-from ConfigLoader import ConfigLoader
-from LineDrawer import LineDrawer
-from PIL import Image
 
 class PDFGenerator(FPDF):
-    def __init__(self, company_name = '<UNKNOWN>'):
+    def __init__(self, company_name = None):
         super().__init__(unit = 'mm')
         self.__config_loader = ConfigLoader()
-        self.pdf_fonts = self.__config_loader.fonts()
+        self.__cvdata = self.__config_loader.cvdata()
         self.font = None
 
         self.__region_manager = RegionManager()
@@ -25,7 +25,8 @@ class PDFGenerator(FPDF):
         self.step_no = 1
         self.company_name = company_name
 
-    def generate_cv(self, cv_data):
+    def generate_cv(self):
+        cv_data = self.__cvdata
         self.add_page()
 
         self.generate_header(cv_data['header'])
@@ -247,3 +248,6 @@ class PDFGenerator(FPDF):
         company_mark = self.string_processor.get_company_mark(self.company_name)
 
         self.text(5.0, 293.0, company_mark)
+
+    def get_cv_data(self):
+        return self.__cvdata

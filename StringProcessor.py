@@ -25,4 +25,9 @@ class StringProcessor:
     def get_company_mark(self, company):
         now = datetime.datetime.now()
 
-        return now.strftime("%d/%m/%Y %H:%M:%S") + " - C.V. generated for " + company + " using " + self.repo
+        if company == None:
+            company_text = ""
+        else:
+            company_text = " for " + company
+
+        return now.strftime("%d/%m/%Y %H:%M:%S") + " - C.V. generated" + company_text + " using " + self.repo
