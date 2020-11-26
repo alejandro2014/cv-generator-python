@@ -66,11 +66,10 @@ class PDFGenerator(FPDF):
 
         self.__region_manager.split_region('25%')
 
-        left_region = self.__region_manager.regions()[0]
-        right_region = self.__region_manager.regions()[1]
+        font_height = self.font['size'] / 2.54
+        self.__region_manager.inc_region_cy(0, font_height)
+        self.__region_manager.inc_region_cy(1, font_height)
 
-        left_region.inc_cursor_y(self.font['size'] / 2.54)
-        right_region.inc_cursor_y(self.font['size'] / 2.54)
         #for experience in experiences:
         #    self.generate_experience(experience)
         self.generate_experience(experiences[0])
@@ -90,6 +89,8 @@ class PDFGenerator(FPDF):
         self.change_font('normalText')
         paragraphs = self.get_experience_paragraphs(experience)
         lines = self.get_paragraphs_lines(paragraphs)
+        lines.append('')
+
         height = self.get_section_height(lines)
 
         region = self.get_current_region()
@@ -128,8 +129,6 @@ class PDFGenerator(FPDF):
         self.__line_drawer.position_arrow()
 
     def write_paragraph(self, lines):
-        r = self.get_current_region()
-
         for line in lines:
             self.write_string_ln(line)
 
@@ -138,7 +137,7 @@ class PDFGenerator(FPDF):
         self.add_line()
 
     def write_string(self, string, align = 'L'):
-        r = self.__region_manager.region()
+        r = self.get_current_region()
 
         if align == 'L':
             x = r.sxpad()
@@ -149,7 +148,7 @@ class PDFGenerator(FPDF):
         self.text(x, r.cursor_y(), string)
 
     def add_line(self, lines_no = 1):
-        r = self.__region_manager.region()
+        r = self.get_current_region()
         line_spacing = 1.5
 
         for i in range(1, lines_no + 1):
@@ -177,7 +176,7 @@ class PDFGenerator(FPDF):
         self.__line_drawer.draw_region(region)
 
     def get_current_region(self):
-        return self.__region_manager.region()
+        return self.__region_manager.current_region()
 
     #---------------------------------------------------------------------
 

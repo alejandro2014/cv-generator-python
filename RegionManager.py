@@ -5,7 +5,7 @@ class RegionManager:
         self.__current_region = Region(self.region_data(0.0, 0.0, 10.0, 210.0))
         self.__regions = [ self.__current_region ]
 
-    def region(self):
+    def current_region(self):
         return self.__current_region
 
     def regions(self):
@@ -13,6 +13,10 @@ class RegionManager:
 
     def change_region(self, region_no):
         self.__current_region = self.__regions[region_no]
+
+    def inc_region_cy(self, region_no, offset_y):
+        region = self.__regions[region_no]
+        region.inc_cursor_y(offset_y)
 
     def split_region(self, percentage_string):
         percentage = float(percentage_string.replace('%', '')) / 100
