@@ -30,11 +30,11 @@ class PDFGenerator(FPDF):
 
         self.generate_header(cv_data['header'])
         self.generate_profile(cv_data['profile'])
-        self.generate_experiences(cv_data['experiences'])
-        #self.generate_skills(cv_data['skills'])
-        #self.generate_languages(cv_data['languages'])
 
-        #self.company_mark()
+        self.generate_skills(cv_data['skills'])
+        self.generate_experiences(cv_data['experiences'])
+
+        self.company_mark()
 
     def generate_header(self, header):
         self.change_font('mainTitle')
@@ -42,6 +42,7 @@ class PDFGenerator(FPDF):
 
         self.change_font('mainSubTitle')
         self.write_string_ln(header['position'], 'C')
+        self.write_string_ln(header['repo'], 'C')
         self.add_line()
 
         self.change_font('normalText')
@@ -65,7 +66,6 @@ class PDFGenerator(FPDF):
     def generate_experiences(self, experiences):
         self.change_font('sectionHeader')
         self.write_string_ln('Work experiences')
-        #self.__line_drawer.position_line()
 
         self.__region_manager.split_region('25%')
 
@@ -127,8 +127,6 @@ class PDFGenerator(FPDF):
         width, height = im.size
 
         self.image(logo_path, r.mx() - ((width / 2.0) - 5.0) / 2.54, r.cursor_y())
-
-        #self.add_line(3)
         r.inc_cursor_y(height / 2.54 + 5.0)
 
         experience_times = self.string_processor.get_experience_times(experience)
@@ -229,24 +227,20 @@ class PDFGenerator(FPDF):
     def get_current_region(self):
         return self.__region_manager.current_region()
 
-    #---------------------------------------------------------------------
     def generate_skills(self, skills):
         self.generate_enumerated_section(skills, 'Skills')
 
-    def generate_languages(self, languages):
-        self.generate_enumerated_section(languages, 'Languages')
-
     def generate_enumerated_section(self, lines, title):
         self.change_font('sectionHeader')
-        self.add_line()
         self.write_string_ln(title)
-        self.add_line()
 
         self.change_font('normalText')
 
         for line in lines:
             current_line = self.string_processor.get_bullet_point_line(line)
             self.write_string_ln(current_line)
+
+        self.add_line()
 
     def company_mark(self):
         self.change_font('smallText')
