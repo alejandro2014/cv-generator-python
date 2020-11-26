@@ -36,6 +36,17 @@ The specification of the fields in the _cv-data.json_ is as follows:
 | _$.profile_ | object | Introduction of the candidate |
 | _$.profile.introduction_ | string | Text of introduction of the candidate to the company |
 | _$.experiences_ | array | List of previous experiences. They are no sorted, you choose the order |
+| _$.experiences[*]_ | object | Object containing fields of the experience |
+| _$.experiences[*].company_ | object | Data of the company |
+| _$.experiences[*].company.id_ | string | Id. of the company. **This name must be coincident with the png logo (without the extension)** |
+| _$.experiences[*].company.name_ | string | Full name of the company |
+| _$.experiences[*].company.location_ | string | Location of the company |
+| _$.experiences[*].company.type_ | string | Type of business of the company |
+| _$.experiences[*].start_ | integer | Year when the experience begins |
+| _$.experiences[*].end_ | integer | Year when the experience ends |
+| _$.experiences[*].position_ | string | Explanation of the performed role, projects, type of work, etc |
+| _$.experiences[*].technologies_ | array | List of technologies used in the project |
+| _$.experiences[*].technologies[*]_ | string | Technology used |
 | _$.skills_ | array | List of skills that will be enumerated |
 | _$.skills[*]_ | string | Skill as a string |
 
