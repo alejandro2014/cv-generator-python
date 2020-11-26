@@ -22,12 +22,12 @@ class LineDrawer:
         # Mid point
         pdf.line(r.mx(), r.sy(), r.mx(), end_y)
 
-    def draw_region_border(self):
+    def draw_region_border(self, start_y):
         pdf = self.__pdf
         r = pdf.get_current_region()
 
-        print("sx: " + str(r.sx()) + " sy: " + str(r.sy()) + " w: " + str(r.w()) + " h: " + str(r.h()))
-        pdf.rect(r.sx(), r.sy(), r.w(), r.h())
+        print("sx: " + str(r.sx()) + " sy: " + str(start_y) + " w: " + str(r.w()) + " h: " + str(r.h()))
+        pdf.rect(r.sx(), start_y, r.w(), r.h())
 
     def position_line(self):
         pdf = self.__pdf

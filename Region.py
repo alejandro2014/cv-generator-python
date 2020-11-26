@@ -20,6 +20,9 @@ class Region:
     def inc_cursor_y(self, offset):
         self.__cursor_y += offset
 
+    def set_cursor_y(self, new_cy):
+        self.__cursor_y = new_cy
+
     def h(self):
         return self.__height
 

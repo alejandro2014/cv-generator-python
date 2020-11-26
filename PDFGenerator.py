@@ -73,7 +73,7 @@ class PDFGenerator(FPDF):
         #for experience in experiences:
         #    self.generate_experience(experience)
         self.generate_experience(experiences[0])
-        #self.generate_experience(experiences[1])
+        self.generate_experience(experiences[1])
 
     def generate_experience(self, experience):
         self.__region_manager.change_region(1)
@@ -85,8 +85,14 @@ class PDFGenerator(FPDF):
 
         self.draw_left_cell(experience)
 
+        self.__region_manager.align_regions()
+
     def draw_right_cell(self, experience):
         self.change_font('normalText')
+
+        r = self.get_current_region()
+        start_y = r.cursor_y() - self.font['size'] / 1.28
+
         paragraphs = self.get_experience_paragraphs(experience)
         lines = self.get_paragraphs_lines(paragraphs)
         lines.append('')
@@ -95,8 +101,6 @@ class PDFGenerator(FPDF):
 
         region = self.get_current_region()
         region.set_height(height)
-        #self.__line_drawer.position_line()
-        #self.__line_drawer.draw_region(100.0)
 
         #if not self.is_experience_fitting(height):
         #    self.add_page()
@@ -105,19 +109,13 @@ class PDFGenerator(FPDF):
         #self.draw_region(self.current_region)
 
         self.write_paragraph(lines)
-        self.__line_drawer.draw_region_border()
-
-        #self.current_region.inc_cursor_y(height)
-        #self.current_region.set_start_y(self.current_region.sy() + height)
-        #print(height)
-        self.__line_drawer.position_arrow()
+        self.__line_drawer.draw_region_border(start_y)
 
         return height
 
     def draw_left_cell(self, experience):
         r = self.get_current_region()
-        #self.__line_drawer.draw_region(100.0)
-        #self.__line_drawer.draw_region(100.0)
+        start_y = r.cursor_y() - self.font['size'] / 1.28
 
         logo_path = 'config/logos/' + experience['company']['id'] + '.png'
         self.image(logo_path, r.mx() - (42.0 - 5.0) / 2.54, r.cursor_y())
@@ -125,8 +123,7 @@ class PDFGenerator(FPDF):
         self.add_line(3)
         experience_times = self.string_processor.get_experience_times(experience)
         self.write_string(experience_times, 'C')
-        self.__line_drawer.draw_region_border()
-        self.__line_drawer.position_arrow()
+        self.__line_drawer.draw_region_border(start_y)
 
     def write_paragraph(self, lines):
         for line in lines:
@@ -179,13 +176,6 @@ class PDFGenerator(FPDF):
         return self.__region_manager.current_region()
 
     #---------------------------------------------------------------------
-
-    def get_lowest_cursor(self):
-        cy_left = self.regions[0].cursor_y()
-        cy_right = self.regions[1].cursor_y()
-
-        return cy_left if cy_left > cy_right else cy_right
-
     def generate_skills(self, skills):
         self.generate_enumerated_section(skills, 'Skills')
 
@@ -251,5 +241,3 @@ class PDFGenerator(FPDF):
         company_mark = self.string_processor.get_company_mark(self.company_name)
 
         self.text(5.0, 293.0, company_mark)
-
-        #self.change_font('normalText')

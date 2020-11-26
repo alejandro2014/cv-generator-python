@@ -42,6 +42,18 @@ class RegionManager:
         self.__regions = [ left_region, right_region ]
         self.__current_region = self.__regions[0]
 
+    def align_regions(self):
+        left_region = self.__regions[0]
+        right_region = self.__regions[1]
+
+        cy_left = left_region.cursor_y()
+        cy_right = right_region.cursor_y()
+
+        max_cursor = cy_left if cy_left > cy_right else cy_right
+
+        left_region.set_cursor_y(max_cursor)
+        right_region.set_cursor_y(max_cursor)
+
     def region_data(self, sx, sy, pad, w):
         return {
             "start_x": sx,
