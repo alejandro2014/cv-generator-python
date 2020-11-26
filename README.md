@@ -19,5 +19,10 @@ python generate-cv.py [Company name]
 It will generate a CV in pdf format, in the root directory of the project. The company name is used for the generation of the customized company text, but the parameter can be ignored when the program is executed.
 
 ## Structure of the file cv-data.json
+The specification of the fields in the _cv-data.json_ is as follows:
+
+Field path | Explanation
+--- | ---
+hola | quease
 
 ## Configuration of the fonts
