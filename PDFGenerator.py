@@ -7,6 +7,7 @@ from Region import Region
 from StringProcessor import StringProcessor
 from ConfigLoader import ConfigLoader
 from LineDrawer import LineDrawer
+from PIL import Image
 
 class PDFGenerator(FPDF):
     def __init__(self, company_name = '<UNKNOWN>'):
@@ -79,16 +80,8 @@ class PDFGenerator(FPDF):
         self.__region_manager.change_region(1)
 
         self.change_font('normalText')
-        #self.__line_drawer.position_line()
         lines = self.get_experience_lines(experience)
         height = self.get_section_height(lines)
-
-        print("------------------------------------")
-        print("Experience: " + experience['company']['id'])
-        print("Height: " + str(height))
-        print("Lines: " + str(len(lines)))
-        print("hpl: " + str(self.font['size'] / 2.54))
-        print("Start y: " + str(self.get_current_region().cursor_y()))
 
         if not self.is_experience_fitting(height):
             self.add_page()
@@ -96,7 +89,6 @@ class PDFGenerator(FPDF):
             self.__region_manager.set_sy(start_y)
             self.__region_manager.set_cy(start_y + self.font['size'] / 2.54)
 
-        #self.__region_manager.set_height(height)
         region = self.get_current_region()
         region.set_height(height)
 
@@ -109,8 +101,7 @@ class PDFGenerator(FPDF):
         self.draw_left_cell(experience)
 
         self.__region_manager.align_regions()
-
-        #self.__region_manager.inc_regions_cy(self.__exp_line_spacing)
+        self.__region_manager.inc_regions_cy(self.__exp_line_spacing)
 
     def get_experience_lines(self, experience):
         paragraphs = self.get_experience_paragraphs(experience)
@@ -131,9 +122,15 @@ class PDFGenerator(FPDF):
         start_y = r.cursor_y() - self.font['size'] / 1.28
 
         logo_path = 'config/logos/' + experience['company']['id'] + '.png'
-        self.image(logo_path, r.mx() - (42.0 - 5.0) / 2.54, r.cursor_y())
 
-        self.add_line(3)
+        im = Image.open(logo_path)
+        width, height = im.size
+
+        self.image(logo_path, r.mx() - ((width / 2.0) - 5.0) / 2.54, r.cursor_y())
+
+        #self.add_line(3)
+        r.inc_cursor_y(height / 2.54 + 5.0)
+
         experience_times = self.string_processor.get_experience_times(experience)
         self.write_string(experience_times, 'C')
         self.__line_drawer.draw_region_border(start_y)
