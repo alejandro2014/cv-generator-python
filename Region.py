@@ -61,3 +61,6 @@ class Region:
 
     def set_height(self, h):
         self.__height = h
+
+    def set_sy(self, sy):
+        self.__start_y = sy

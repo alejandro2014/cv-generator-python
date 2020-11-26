@@ -2,7 +2,8 @@ from Region import Region
 
 class RegionManager:
     def __init__(self):
-        self.__current_region = Region(self.region_data(0.0, 0.0, 10.0, 210.0))
+        self.__main_region = Region(self.region_data(0.0, 0.0, 10.0, 210.0))
+        self.__current_region = self.__main_region
         self.__regions = [ self.__current_region ]
 
     def current_region(self):
@@ -61,12 +62,26 @@ class RegionManager:
         left_region.inc_cursor_y(exp_line_spacing)
         right_region.inc_cursor_y(exp_line_spacing)
 
-    def set_regions_cy(self, new_cy):
+    def set_cy(self, new_cy):
         left_region = self.__regions[0]
         right_region = self.__regions[1]
 
         left_region.set_cursor_y(new_cy)
         right_region.set_cursor_y(new_cy)
+
+    def set_height(self, height):
+        left_region = self.__regions[0]
+        right_region = self.__regions[1]
+
+        left_region.set_height(height)
+        right_region.set_height(height)
+
+    def set_sy(self, height):
+        left_region = self.__regions[0]
+        right_region = self.__regions[1]
+
+        left_region.set_sy(height)
+        right_region.set_sy(height)
 
     def region_data(self, sx, sy, pad, w):
         return {

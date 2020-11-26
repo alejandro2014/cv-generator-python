@@ -71,15 +71,29 @@ class PDFGenerator(FPDF):
         self.__region_manager.inc_region_cy(0, font_height)
         self.__region_manager.inc_region_cy(1, font_height)
 
-        #for experience in experiences:
-        #    self.generate_experience(experience)
-        self.generate_experience(experiences[0])
-        self.generate_experience(experiences[1])
-        self.generate_experience(experiences[2])
+        for experience in experiences:
+            self.generate_experience(experience)
+        #self.generate_experience(experiences[0])
+        #self.generate_experience(experiences[1])
+        #self.generate_experience(experiences[2])
 
     def generate_experience(self, experience):
         self.__region_manager.change_region(1)
-        height = self.draw_right_cell(experience)
+
+        self.change_font('normalText')
+        lines = self.get_experience_lines(experience)
+        height = self.get_section_height(lines)
+
+        if not self.is_experience_fitting(height):
+            self.add_page()
+            #padding = self.__region_manager.current_region().padding() * 2.54
+            start_y = 0.0 + 10.0 #+ self.font['size'] / 2.54
+            self.__region_manager.set_sy(start_y)
+            self.__region_manager.set_cy(start_y + 10.0)
+
+        self.__region_manager.set_height(height)
+
+        self.draw_right_cell(lines)
 
         self.__region_manager.change_region(0)
         region = self.get_current_region()
@@ -90,30 +104,19 @@ class PDFGenerator(FPDF):
         self.__region_manager.align_regions()
         self.__region_manager.inc_regions_cy(self.__exp_line_spacing)
 
-    def draw_right_cell(self, experience):
-        self.change_font('normalText')
-
-        r = self.get_current_region()
-        start_y = r.cursor_y() - self.font['size'] / 1.28
-
+    def get_experience_lines(self, experience):
         paragraphs = self.get_experience_paragraphs(experience)
         lines = self.get_paragraphs_lines(paragraphs)
         lines.append('')
 
-        height = self.get_section_height(lines)
+        return lines
 
+    def draw_right_cell(self, lines):
         region = self.get_current_region()
-        region.set_height(height)
-
-        if not self.is_experience_fitting(height):
-            self.add_page()
-            #padding = self.__region_manager.current_region().padding() * 2.54
-            #self.__region_manager.set_regions_cy(padding)
+        start_y = region.cursor_y() - self.font['size'] / 1.28
 
         self.write_paragraph(lines)
         self.__line_drawer.draw_region_border(start_y)
-
-        return height
 
     def draw_left_cell(self, experience):
         r = self.get_current_region()
