@@ -20,6 +20,7 @@ class PDFGenerator(FPDF):
         self.__line_drawer = LineDrawer(self)
 
         self.__exp_line_spacing = 4.0
+        self.__line_spacing = 1.5
         self.step_no = 1
         self.company_name = company_name
 
@@ -73,25 +74,31 @@ class PDFGenerator(FPDF):
 
         for experience in experiences:
             self.generate_experience(experience)
-        #self.generate_experience(experiences[0])
-        #self.generate_experience(experiences[1])
-        #self.generate_experience(experiences[2])
 
     def generate_experience(self, experience):
         self.__region_manager.change_region(1)
 
         self.change_font('normalText')
+        #self.__line_drawer.position_line()
         lines = self.get_experience_lines(experience)
         height = self.get_section_height(lines)
 
+        print("------------------------------------")
+        print("Experience: " + experience['company']['id'])
+        print("Height: " + str(height))
+        print("Lines: " + str(len(lines)))
+        print("hpl: " + str(self.font['size'] / 2.54))
+        print("Start y: " + str(self.get_current_region().cursor_y()))
+
         if not self.is_experience_fitting(height):
             self.add_page()
-            #padding = self.__region_manager.current_region().padding() * 2.54
-            start_y = 0.0 + 10.0 #+ self.font['size'] / 2.54
+            start_y = 10.0
             self.__region_manager.set_sy(start_y)
-            self.__region_manager.set_cy(start_y + 10.0)
+            self.__region_manager.set_cy(start_y + self.font['size'] / 2.54)
 
-        self.__region_manager.set_height(height)
+        #self.__region_manager.set_height(height)
+        region = self.get_current_region()
+        region.set_height(height)
 
         self.draw_right_cell(lines)
 
@@ -102,7 +109,8 @@ class PDFGenerator(FPDF):
         self.draw_left_cell(experience)
 
         self.__region_manager.align_regions()
-        self.__region_manager.inc_regions_cy(self.__exp_line_spacing)
+
+        #self.__region_manager.inc_regions_cy(self.__exp_line_spacing)
 
     def get_experience_lines(self, experience):
         paragraphs = self.get_experience_paragraphs(experience)
@@ -130,9 +138,10 @@ class PDFGenerator(FPDF):
         self.write_string(experience_times, 'C')
         self.__line_drawer.draw_region_border(start_y)
 
-    def get_section_height(self, paragraph_lines):
-        font = self.font
-        height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
+    def get_section_height(self, lines):
+        lines_no = len(lines)
+        spaces_no = lines_no - 1
+        height = ((lines_no * self.font['size']) + (spaces_no * self.__line_spacing)) / 2.54
 
         return height
 
@@ -195,10 +204,9 @@ class PDFGenerator(FPDF):
 
     def add_line(self, lines_no = 1):
         r = self.get_current_region()
-        line_spacing = 1.5
 
         for i in range(1, lines_no + 1):
-            offset_y = (self.font['size'] + line_spacing) / 2.54
+            offset_y = (self.font['size'] + self.__line_spacing) / 2.54
             r.inc_cursor_y(offset_y)
 
     def change_font(self, font_name):
