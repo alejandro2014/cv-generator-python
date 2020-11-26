@@ -51,3 +51,11 @@ The specification of the fields in the _cv-data.json_ is as follows:
 | _$.skills[*]_ | string | Skill as a string |
 
 ## Configuration of the fonts
+The fonts are located in the file _config/fonts.json_ and the fields are quite self-explanatory, you can configure them here.
+
+## TODO
+- Improvement of the layout: Better calculations
+- Improvement of the layout: More beautiful document
+- Unit testing
+- More refactoring
+- Better region management
