@@ -19,6 +19,7 @@ class PDFGenerator(FPDF):
         self.string_processor = StringProcessor()
         self.__line_drawer = LineDrawer(self)
 
+        self.__exp_line_spacing = 4.0
         self.step_no = 1
         self.company_name = company_name
 
@@ -86,6 +87,7 @@ class PDFGenerator(FPDF):
         self.draw_left_cell(experience)
 
         self.__region_manager.align_regions()
+        self.__region_manager.inc_regions_cy(self.__exp_line_spacing)
 
     def draw_right_cell(self, experience):
         self.change_font('normalText')

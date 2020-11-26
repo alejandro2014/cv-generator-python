@@ -54,6 +54,13 @@ class RegionManager:
         left_region.set_cursor_y(max_cursor)
         right_region.set_cursor_y(max_cursor)
 
+    def inc_regions_cy(self, exp_line_spacing):
+        left_region = self.__regions[0]
+        right_region = self.__regions[1]
+
+        left_region.inc_cursor_y(exp_line_spacing)
+        right_region.inc_cursor_y(exp_line_spacing)
+
     def region_data(self, sx, sy, pad, w):
         return {
             "start_x": sx,
