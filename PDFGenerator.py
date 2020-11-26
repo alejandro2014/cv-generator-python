@@ -75,6 +75,7 @@ class PDFGenerator(FPDF):
         #    self.generate_experience(experience)
         self.generate_experience(experiences[0])
         self.generate_experience(experiences[1])
+        self.generate_experience(experiences[2])
 
     def generate_experience(self, experience):
         self.__region_manager.change_region(1)
@@ -104,11 +105,10 @@ class PDFGenerator(FPDF):
         region = self.get_current_region()
         region.set_height(height)
 
-        #if not self.is_experience_fitting(height):
-        #    self.add_page()
-
-        #self.current_region.add_height(height)
-        #self.draw_region(self.current_region)
+        if not self.is_experience_fitting(height):
+            self.add_page()
+            #padding = self.__region_manager.current_region().padding() * 2.54
+            #self.__region_manager.set_regions_cy(padding)
 
         self.write_paragraph(lines)
         self.__line_drawer.draw_region_border(start_y)
@@ -132,6 +132,11 @@ class PDFGenerator(FPDF):
         height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
 
         return height
+
+    def is_experience_fitting(self, height):
+        r = self.__region_manager.current_region()
+
+        return (r.cursor_y() + height) <= 287.0
 
     def get_experience_paragraphs(self, experience):
         paragraphs = []
@@ -234,9 +239,6 @@ class PDFGenerator(FPDF):
         for line in lines:
             current_line = self.string_processor.get_bullet_point_line(line)
             self.write_string_ln(current_line)
-
-    def is_experience_fitting(self, height):
-        return (self.current_y + height) <= 287.0
 
     def company_mark(self):
         self.change_font('smallText')
