@@ -21,8 +21,22 @@ It will generate a CV in pdf format, in the root directory of the project. The c
 ## Structure of the file cv-data.json
 The specification of the fields in the _cv-data.json_ is as follows:
 
-Field path | Explanation
---- | ---
-hola | quease
+| Field path | Field type | Explanation |
+| --- | --- | --- |
+| _$.header_ | object | Header data |
+| _$.header.name_ | string | Name and surname(s) of the user |
+| _$.header.position_ | string | Position that will be used as a subtitle |
+| _$.header.address_ | string | Physical address |
+| _$.header.mail_ | string | Email address |
+| _$.header.phone_ | string | Phone number |
+| _$.header.birth_ | object | Birth data |
+| _$.header.birth.place_ | string | Place of birth |
+| _$.header.birth.date_ | string | Date of birth |
+| _$.header.repo_ | string | Repository with the projects of the user |
+| _$.profile_ | object | Introduction of the candidate |
+| _$.profile.introduction_ | string | Text of introduction of the candidate to the company |
+| _$.experiences_ | array | List of previous experiences. They are no sorted, you choose the order |
+| _$.skills_ | array | List of skills that will be enumerated |
+| _$.skills[*]_ | string | Skill as a string |
 
 ## Configuration of the fonts
