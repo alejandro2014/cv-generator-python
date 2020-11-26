@@ -125,6 +125,45 @@ class PDFGenerator(FPDF):
         self.write_string(experience_times, 'C')
         self.__line_drawer.draw_region_border(start_y)
 
+    def get_section_height(self, paragraph_lines):
+        font = self.font
+        height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
+
+        return height
+
+    def get_experience_paragraphs(self, experience):
+        paragraphs = []
+
+        paragraphs.append(self.string_processor.get_company_string(experience['company']))
+        paragraphs.append(self.string_processor.get_position_string(experience['position']))
+        paragraphs.append(self.string_processor.get_technologies_string(experience['technologies']))
+
+        return paragraphs
+
+    def get_paragraph_lines(self, text, region):
+        width = region.wpad()
+        space_positions = [ pos for pos, char in enumerate(text) if char == ' ' ]
+        lines = []
+        start_space = 0
+
+        for i in range(len(space_positions)):
+            if self.get_string_width(text[start_space:space_positions[i]]) > width:
+                lines.append(text[start_space:space_positions[i - 1]].strip())
+                start_space = space_positions[i - 1]
+
+        lines.append(text[start_space:len(text)].strip())
+
+        return lines
+
+    def get_paragraphs_lines(self, paragraphs):
+        region = self.get_current_region()
+        lines = []
+
+        for paragraph in paragraphs:
+            lines += (self.get_paragraph_lines(paragraph, region) + [ '' ])
+
+        return lines
+
     def write_paragraph(self, lines):
         for line in lines:
             self.write_string_ln(line)
@@ -196,45 +235,6 @@ class PDFGenerator(FPDF):
 
     def is_experience_fitting(self, height):
         return (self.current_y + height) <= 287.0
-
-    def get_paragraphs_lines(self, paragraphs):
-        region = self.get_current_region()
-        lines = []
-
-        for paragraph in paragraphs:
-            lines += (self.get_paragraph_lines(paragraph, region) + [ '' ])
-
-        return lines
-
-    def get_paragraph_lines(self, text, region):
-        width = region.wpad()
-        space_positions = [ pos for pos, char in enumerate(text) if char == ' ' ]
-        lines = []
-        start_space = 0
-
-        for i in range(len(space_positions)):
-            if self.get_string_width(text[start_space:space_positions[i]]) > width:
-                lines.append(text[start_space:space_positions[i - 1]].strip())
-                start_space = space_positions[i - 1]
-
-        lines.append(text[start_space:len(text)].strip())
-
-        return lines
-
-    def get_experience_paragraphs(self, experience):
-        paragraphs = []
-
-        paragraphs.append(self.string_processor.get_company_string(experience['company']))
-        paragraphs.append(self.string_processor.get_position_string(experience['position']))
-        paragraphs.append(self.string_processor.get_technologies_string(experience['technologies']))
-
-        return paragraphs
-
-    def get_section_height(self, paragraph_lines):
-        font = self.font
-        height = (((len(paragraph_lines) + 1) * font['size']) / 2.54)
-
-        return height
 
     def company_mark(self):
         self.change_font('smallText')
