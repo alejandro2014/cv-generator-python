@@ -1,10 +1,4 @@
-*.pdf
-*.odt
 ._*.py
 .~*
-
-config/._*.py
-config/cv-data.json
-config/logos/
 
 __pycache__/
