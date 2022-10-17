@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import datetime
 import json
 import os
@@ -7,6 +8,16 @@ import sys
 from PDFGenerator import PDFGenerator
 
 APP_CONFIG_PATH = f"{os.environ['PROGRAMS_CONFIG_PATH']}/cvs/config"
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Generates a pdf version of a cv')
+
+    parser.add_argument('--language', type=str, default='en', help='Language of the cv')
+    parser.add_argument('--company', type=str, help='Company to whom the cv is addressed')
+
+    args = parser.parse_args()
+
+    return args
 
 def read_config_variables(file):
     config_json_file = f"{APP_CONFIG_PATH}/{file}.json"
@@ -24,13 +35,12 @@ def generate_pdf_name(cv_data, company_name):
 
     return f"CV {cv_data['header']['name']} - {date}{company}.pdf"
 
-company_name = sys.argv[1] if len(sys.argv) > 1 else None
-
-pdf = PDFGenerator(APP_CONFIG_PATH, company_name=company_name)
+args = parse_args()
+pdf = PDFGenerator(APP_CONFIG_PATH, company_name=args.company, language=args.language)
 pdf.generate_cv()
 
 cv_data = pdf.get_cv_data()
-pdf_name = generate_pdf_name(cv_data, company_name)
+pdf_name = generate_pdf_name(cv_data, args.company)
 
 config_vars = read_config_variables('cvs')
 pdf_path = f"{config_vars['output_path']}/{pdf_name}"

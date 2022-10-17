@@ -10,10 +10,11 @@ from Region import Region
 from StringProcessor import StringProcessor
 
 class PDFGenerator(FPDF):
-    def __init__(self, config_path, company_name=None):
+    def __init__(self, config_path, company_name=None, language='en'):
         super().__init__(unit = 'mm')
         self.__config_path = config_path
-        self.__config_loader = ConfigLoader(config_path)
+        self.__language = language
+        self.__config_loader = ConfigLoader(config_path, language=self.__language)
         self.__cvdata = self.__config_loader.cvdata()
         self.font = None
 
