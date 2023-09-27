@@ -45,4 +45,5 @@ pdf_name = generate_pdf_name(cv_data, args.company)
 config_vars = read_config_variables('cvs')
 pdf_path = f"{config_vars['output_path']}/{pdf_name}"
 
+print(f'Output path: {pdf_path}')
 pdf.output(pdf_path, 'F')
