@@ -31,7 +31,7 @@ class PDFGenerator(FPDF):
         cv_data = self.__cvdata
         self.add_page()
 
-        self.generate_header(cv_data['header'])
+        self.generate_header(cv_data['header'], cv_data)
         self.generate_profile(cv_data['profile'])
 
         self.generate_skills(cv_data['skills'])
@@ -39,13 +39,31 @@ class PDFGenerator(FPDF):
 
         self.company_mark()
 
-    def generate_header(self, header):
+    def get_data_element(self, path):
+        node = self.__cvdata
+
+        path_elements = path.split('.')
+
+        if path_elements[0] != '$':
+            return ''
+
+        for path_element in path_elements[1:]:
+            node = node[path_element]
+
+        return node
+
+    def generate_header(self, header, cv_data):
         self.change_font('mainTitle')
-        self.write_string_ln(header['name'], 'C')
+        string = self.get_data_element('$.header.name')
+        self.write_string_ln(string, 'C')
 
         self.change_font('mainSubTitle')
-        self.write_string_ln(header['position'], 'C')
-        self.write_string_ln(header['repo'], 'C')
+        string = self.get_data_element('$.header.position')
+        self.write_string_ln(string, 'C')
+
+        string = self.get_data_element('$.header.repo')
+        self.write_string_ln(string, 'C')
+
         self.add_line()
 
         self.change_font('normalText')
