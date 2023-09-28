@@ -49,3 +49,13 @@ class LineDrawer:
         pdf.line(18.0, r.cursor_y(), 18.0 - 4.0, r.cursor_y() - 2.0)
         pdf.line(18.0, r.cursor_y(), 18.0 - 4.0, r.cursor_y() + 2.0)
         pdf.set_draw_color(0, 0, 0)
+
+    def position_arrow_vertical(self):
+        pdf = self.__pdf
+        r = pdf.get_current_region()
+
+        pdf.set_draw_color(150, 0, 0)
+        pdf.line(r.cursor_x(), r.cursor_y() - 4, r.cursor_x(), r.cursor_y() + 4)
+        #pdf.line(18.0, r.cursor_y(), 18.0 - 4.0, r.cursor_y() - 2.0)
+        #pdf.line(18.0, r.cursor_y(), 18.0 - 4.0, r.cursor_y() + 2.0)
+        pdf.set_draw_color(0, 0, 0)

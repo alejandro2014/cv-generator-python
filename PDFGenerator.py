@@ -9,6 +9,11 @@ from RegionManager import RegionManager
 from Region import Region
 from StringProcessor import StringProcessor
 
+class Offset:
+    def __init__(self):
+        self.x = 0
+
+
 class PDFGenerator(FPDF):
     def __init__(self, config_path, company_name=None, language='en'):
         super().__init__(unit = 'mm')
@@ -32,6 +37,8 @@ class PDFGenerator(FPDF):
         self.add_page()
 
         self.generate_header(cv_data['header'], cv_data)
+
+        return
         self.generate_profile(cv_data['profile'])
 
         self.generate_skills(cv_data['skills'])
@@ -53,6 +60,123 @@ class PDFGenerator(FPDF):
         return node
 
     def generate_header(self, header, cv_data):
+        def calculate_size(element):
+            return self.get_string_width(element['text'])
+        
+        def get_text_x(line, x_min, x_max, x_mid):
+            align = line['align']
+
+            if align == 'left':
+                return x_min
+            
+            if align == 'center':
+                return x_mid - line['total_length'] / 2
+            
+            if align == 'right':
+                return x_max - line['total_length']
+            
+            return None
+        
+        def draw_section_border(coords_min, coords_max, coords_mid):
+            x_min, y_min = coords_min
+            x_max, y_max = coords_max
+            x_mid, y_mid = coords_mid
+
+            self.line(x_min, y_min, x_max, y_min)
+            self.line(x_min, y_mid, x_max, y_mid)
+            self.line(x_min, y_max, x_max, y_max)
+
+            self.line(x_min, y_min, x_min, y_max)
+            self.line(x_mid, y_min, x_mid, y_max)
+            self.line(x_max, y_min, x_max, y_max)
+
+        def draw_section_border_padding(coords_min_padded, coords_max_padded):
+            x_min, y_min = coords_min_padded
+            x_max, y_max = coords_max_padded
+
+            self.line(x_min, y_min, x_max, y_min)
+            self.line(x_min, y_max, x_max, y_max)
+
+            self.line(x_min, y_min, x_min, y_max)
+            self.line(x_max, y_min, x_max, y_max)
+
+        def draw_section_lines(coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded):
+            self.set_draw_color(0, 0, 0)
+            draw_section_border(coords_min, coords_max, coords_mid)
+            self.set_draw_color(150, 0, 0)
+            draw_section_border_padding(coords_min_padded, coords_max_padded)
+            self.set_draw_color(0, 0, 0)
+        
+        def calculate_lines_size(lines):
+            for line in lines:
+                for element in line['elements']:
+                    font = element['font']
+                    self.set_font(font['family'], font['style'], font['size'])
+                    element['size'] = calculate_size(element)
+
+                line['total_length'] = sum([ e['size'] for e in line['elements'] ])
+                line['height'] = max([ e['font']['size'] for e in line['elements'] ])
+
+            return lines
+        
+        def draw_text_element(element, x, y):
+            font = element['font']
+            
+            self.set_font(font['family'], font['style'], font['size'])
+            self.text(x, y, element['text'])
+
+        def draw_text(line, x, y):
+            for element in line['elements']:
+                draw_text_element(element, x, y)
+                
+                x += element['size']
+
+        def draw_lines(x_min_padded, x_max_padded, x_mid):
+            for line in lines:
+                x = get_text_x(line, x_min_padded, x_max_padded, x_mid)
+                y = padding + line['height'] / 2.54
+
+                draw_text(line, x, y)
+
+        lines = [
+            {
+                'align': 'center',
+                'elements': [
+                    {
+                        'text': 'Hola ',
+                        'font': {
+                            'family': 'times',
+                            'style': 'BI',
+                            'size': 12
+                        }
+                    },
+                    {
+                        'text': 'Que tal',
+                        'font': {
+                            'family': 'times',
+                            'style': '',
+                            'size': 12
+                        }
+                    }
+                ]
+            }
+        ]
+
+        x_min, y_min = coords_min = (0, 0)
+        x_max, y_max = coords_max = (210, 297)
+        x_mid, y_mid = coords_mid = ((x_max - x_min) / 2, (y_max - y_min) / 2)
+        padding = 10
+
+        coords_min_padded = (x_min + padding, y_min + padding)
+        coords_max_padded = (x_max - padding, y_max - padding)
+
+        draw_section_lines(coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded)
+
+        lines = calculate_lines_size(lines)
+
+        draw_lines(coords_min_padded[0], coords_max_padded[0], x_mid)
+        
+        return
         self.change_font('mainTitle')
         string = self.get_data_element('$.header.name')
         self.write_string_ln(string, 'C')
@@ -67,7 +191,10 @@ class PDFGenerator(FPDF):
         self.add_line()
 
         self.change_font('normalText')
-        self.write_string_ln('Address: ' + header['address'], 'C')
+        self.write_string('Address: ', 'L')
+        self.write_string_ln(header['address'], 'L')
+
+        return
         self.write_string_ln(header['mail'] + ', ' + header['phone'], 'C')
         self.write_string_ln('Place and date of birth: ' + header['birth']['date'] + ', ' + header['birth']['place'], 'C')
 
@@ -211,6 +338,8 @@ class PDFGenerator(FPDF):
         r = self.get_current_region()
 
         if align == 'L':
+            #self.__line_drawer.position_arrow()
+            self.__line_drawer.draw_region(r)
             x = r.sxpad()
         elif align == 'C':
             string_width = self.get_string_width(string)
@@ -221,17 +350,14 @@ class PDFGenerator(FPDF):
     def add_line(self, lines_no = 1):
         r = self.get_current_region()
 
-        for i in range(1, lines_no + 1):
+        for _ in range(1, lines_no + 1):
             offset_y = (self.font['size'] + self.__line_spacing) / 2.54
             r.inc_cursor_y(offset_y)
 
     def change_font(self, font_name):
         font = self.__config_loader.font(font_name)
 
-        if font['style'] == 'bold':
-            style = 'B'
-        else:
-            style = ''
+        style = 'B' if font['style'] == 'bold' else ''
 
         self.set_font(font['family'], style, font['size'])
 
