@@ -37,9 +37,52 @@ def generate_pdf_name(cv_data, company_name):
 
 args = parse_args()
 pdf = PDFGenerator(APP_CONFIG_PATH, company_name=args.company, language=args.language)
-pdf.generate_cv()
+
+document = {
+            'sections': {
+
+            },
+            'elements': [
+                {
+                    'id': 'header',
+                    'section': 'main',
+                    'lines': [
+                        {
+                            'align': 'center',
+                            'elements': [
+                                {
+                                    'text': 'Hola ',
+                                    'font': 'normalSizeBoldItalic'
+                                },
+                                {
+                                    'text': 'Que tal',
+                                    'font': 'normalSize'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            'fonts': {
+                'normalSizeBoldItalic': {
+                    'family': 'times',
+                    'style': 'BI',
+                    'size': 12
+                },
+                'normalSize': {
+                    'family': 'times',
+                    'style': '',
+                    'size': 12
+                }
+            }
+        }
+
+#pdf.generate_cv()
 
 cv_data = pdf.get_cv_data()
+
+pdf.render_document(document, cv_data)
+
 pdf_name = generate_pdf_name(cv_data, args.company)
 
 config_vars = read_config_variables('cvs')

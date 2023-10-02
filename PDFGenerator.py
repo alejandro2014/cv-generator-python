@@ -32,6 +32,28 @@ class PDFGenerator(FPDF):
         self.step_no = 1
         self.company_name = company_name
 
+    def render_document(self, document, document_data):
+        self.__document = document
+        self.__document_data = document_data
+        self.add_page()
+
+        #print(document)
+        #print(document_data)
+
+        x_min, y_min = coords_min = (0, 0)
+        x_max, y_max = coords_max = (210, 297)
+        x_mid, y_mid = coords_mid = ((x_max - x_min) / 2, (y_max - y_min) / 2)
+        padding = 10
+
+        coords_min_padded = (x_min + padding, y_min + padding)
+        coords_max_padded = (x_max - padding, y_max - padding)
+
+        self.draw_section_lines(coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded)
+
+        lines = self.calculate_lines_size()
+
+        self.draw_lines(lines, coords_min_padded[0], coords_max_padded[0], x_mid)
+
     def generate_cv(self):
         cv_data = self.__cvdata
         self.add_page()
@@ -59,108 +81,95 @@ class PDFGenerator(FPDF):
 
         return node
 
-    def generate_header(self, header, cv_data):
-        def calculate_size(element):
-            return self.get_string_width(element['text'])
+    def calculate_size(self, element):
+        print(f'>>> {element}')
+        return self.get_string_width(element['text'])
+    
+    def get_text_x(self, line, x_min, x_max, x_mid):
+        align = line['align']
+
+        if align == 'left':
+            return x_min
         
-        def get_text_x(line, x_min, x_max, x_mid):
-            align = line['align']
-
-            if align == 'left':
-                return x_min
-            
-            if align == 'center':
-                return x_mid - line['total_length'] / 2
-            
-            if align == 'right':
-                return x_max - line['total_length']
-            
-            return None
+        if align == 'center':
+            return x_mid - line['total_length'] / 2
         
-        def draw_section_border(coords_min, coords_max, coords_mid):
-            x_min, y_min = coords_min
-            x_max, y_max = coords_max
-            x_mid, y_mid = coords_mid
-
-            self.line(x_min, y_min, x_max, y_min)
-            self.line(x_min, y_mid, x_max, y_mid)
-            self.line(x_min, y_max, x_max, y_max)
-
-            self.line(x_min, y_min, x_min, y_max)
-            self.line(x_mid, y_min, x_mid, y_max)
-            self.line(x_max, y_min, x_max, y_max)
-
-        def draw_section_border_padding(coords_min_padded, coords_max_padded):
-            x_min, y_min = coords_min_padded
-            x_max, y_max = coords_max_padded
-
-            self.line(x_min, y_min, x_max, y_min)
-            self.line(x_min, y_max, x_max, y_max)
-
-            self.line(x_min, y_min, x_min, y_max)
-            self.line(x_max, y_min, x_max, y_max)
-
-        def draw_section_lines(coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded):
-            self.set_draw_color(0, 0, 0)
-            draw_section_border(coords_min, coords_max, coords_mid)
-            self.set_draw_color(150, 0, 0)
-            draw_section_border_padding(coords_min_padded, coords_max_padded)
-            self.set_draw_color(0, 0, 0)
+        if align == 'right':
+            return x_max - line['total_length']
         
-        def calculate_lines_size(lines):
-            for line in lines:
-                for element in line['elements']:
-                    font = element['font']
-                    self.set_font(font['family'], font['style'], font['size'])
-                    element['size'] = calculate_size(element)
+        return None
+    
+    def draw_section_border(self, coords_min, coords_max, coords_mid):
+        x_min, y_min = coords_min
+        x_max, y_max = coords_max
+        x_mid, y_mid = coords_mid
 
-                line['total_length'] = sum([ e['size'] for e in line['elements'] ])
-                line['height'] = max([ e['font']['size'] for e in line['elements'] ])
+        self.line(x_min, y_min, x_max, y_min)
+        self.line(x_min, y_mid, x_max, y_mid)
+        self.line(x_min, y_max, x_max, y_max)
 
-            return lines
+        self.line(x_min, y_min, x_min, y_max)
+        self.line(x_mid, y_min, x_mid, y_max)
+        self.line(x_max, y_min, x_max, y_max)
+
+    def draw_section_border_padding(self, coords_min_padded, coords_max_padded):
+        x_min, y_min = coords_min_padded
+        x_max, y_max = coords_max_padded
+
+        self.line(x_min, y_min, x_max, y_min)
+        self.line(x_min, y_max, x_max, y_max)
+
+        self.line(x_min, y_min, x_min, y_max)
+        self.line(x_max, y_min, x_max, y_max)
+
+    def draw_section_lines(self, coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded):
+        self.set_draw_color(0, 0, 0)
+        self.draw_section_border(coords_min, coords_max, coords_mid)
+        self.set_draw_color(150, 0, 0)
+        self.draw_section_border_padding(coords_min_padded, coords_max_padded)
+        self.set_draw_color(0, 0, 0)
+    
+    def calculate_lines_size(self):
+        lines = self.__document['elements'][0]['lines']
         
-        def draw_text_element(element, x, y):
-            font = element['font']
-            
-            self.set_font(font['family'], font['style'], font['size'])
-            self.text(x, y, element['text'])
-
-        def draw_text(line, x, y):
+        for line in lines:
             for element in line['elements']:
-                draw_text_element(element, x, y)
-                
-                x += element['size']
+                font = self.get_element_font(element)
 
-        def draw_lines(x_min_padded, x_max_padded, x_mid):
-            for line in lines:
-                x = get_text_x(line, x_min_padded, x_max_padded, x_mid)
-                y = padding + line['height'] / 2.54
+                self.set_font(font['family'], font['style'], font['size'])
 
-                draw_text(line, x, y)
+                element['size'] = self.calculate_size(element)
 
-        lines = [
-            {
-                'align': 'center',
-                'elements': [
-                    {
-                        'text': 'Hola ',
-                        'font': {
-                            'family': 'times',
-                            'style': 'BI',
-                            'size': 12
-                        }
-                    },
-                    {
-                        'text': 'Que tal',
-                        'font': {
-                            'family': 'times',
-                            'style': '',
-                            'size': 12
-                        }
-                    }
-                ]
-            }
-        ]
+            line['total_length'] = sum([ e['size'] for e in line['elements'] ])
+            line['height'] = max([ self.get_element_font(e)['size'] for e in line['elements'] ])
+
+        return lines
+    
+    def get_element_font(self, element):
+        font_name = element['font']
+
+        return self.__document['fonts'][font_name]
+    
+    def draw_text_element(self, element, x, y):
+        font = self.get_element_font(element)
+        
+        self.set_font(font['family'], font['style'], font['size'])
+        self.text(x, y, element['text'])
+
+    def draw_text(self, line, x, y):
+        for element in line['elements']:
+            self.draw_text_element(element, x, y)
+            
+            x += element['size']
+
+    def draw_lines(self, lines, x_min_padded, x_max_padded, x_mid):
+        padding = 10
+
+        for line in lines:
+            x = self.get_text_x(line, x_min_padded, x_max_padded, x_mid)
+            y = padding + line['height'] / 2.54
+
+            self.draw_text(line, x, y)
 
         x_min, y_min = coords_min = (0, 0)
         x_max, y_max = coords_max = (210, 297)
@@ -170,11 +179,7 @@ class PDFGenerator(FPDF):
         coords_min_padded = (x_min + padding, y_min + padding)
         coords_max_padded = (x_max - padding, y_max - padding)
 
-        draw_section_lines(coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded)
-
-        lines = calculate_lines_size(lines)
-
-        draw_lines(coords_min_padded[0], coords_max_padded[0], x_mid)
+        self.draw_section_lines(coords_min, coords_max, coords_mid, coords_min_padded, coords_max_padded)
         
         return
         self.change_font('mainTitle')
